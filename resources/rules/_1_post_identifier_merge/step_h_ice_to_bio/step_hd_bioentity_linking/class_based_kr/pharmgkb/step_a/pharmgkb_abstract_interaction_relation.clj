@@ -45,20 +45,9 @@
       SELECT ?bioentity1 ?bioentity2 ?has_participant ?abstract_interaction ?record
       WHERE {
 
-      {
-             select ?has_participant {
-                                      kice:RO_0000057 obo:IAO_0000219 ?has_participant .
-                                      filter (?has_participant != obo:RO_0000057) .
-                                      }
-             }
+      ?has_participant rdf:type kice:temp_has_participant .
+      ?abstract_interaction rdf:type kice:temp_abstract_interaction .
 
-
-  {
-   select ?abstract_interaction {
-                                 kice:INO_0000002 obo:IAO_0000219 ?abstract_interaction .
-                                 filter (?abstract_interaction != obo:INO_0000002) .
-                                 }
-   }
       ?record rdf:type ccp:IAO_EXT_0000823 . # ccp:PharmGKB_relation_record
                ?record obo:BFO_0000051 ?entity1_identifier_field_value . # BFO:has_part
                ?entity1_identifier_field_value rdf:type ccp:IAO_EXT_0001036 . # ccp:PharmGKB_relation_record__entity_1_identifier_field_value

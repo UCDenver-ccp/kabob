@@ -39,10 +39,11 @@
         ;; be removed once the 'http:/' bug is resolved.
         ;; ---------------------------------------------------------------------------
         ("bnode" "http://ccp.ucdenver.edu/bnode/")
-        ("bp_base", "http://www.reactome.org/biopax/65/48887#")
+        ("bp_base", "http://www.reactome.org/biopax/68/48887#")
 
         ("araport_pr","https://www.araport.org/locus/")
         ("cgnc_pr","http://birdgenenames.org/cgnc/")
+        ("dictybase_pr","http://dictybase.org/gene/")
         ("rgd_pr","http://rgd.mcw.edu/rgdweb/report/gene/")
         ("tair_pr","http://www.arabidopsis.org/servlets/")
         ("hgnc_pr","http://www.genenames.org/cgi-bin/")
@@ -60,10 +61,15 @@
         ("semanticscience", "http://semanticscience.org/resource/")
 
         ("reactome_download", "http://www.reactome.org/download/current/")
+
+        ("owlapi_error", "http://org.semanticweb.owlapi/error#")
         ;; ---------------------------------------------------------------------------
 
         ;; the bp namespace is a convenience for working with biopax data
         ("bp" "http://www.biopax.org/release/biopax-level3.owl#")
+
+        ;; this namespace is used to define virtual graphs in blazegraph
+        ("bd" "http://bigdata.com/")
 
 
        ;("kiao" "http://kabob.ucdenver.edu/iao/")

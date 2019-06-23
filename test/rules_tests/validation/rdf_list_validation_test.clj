@@ -12,18 +12,8 @@
              [kabob.core.namespace :refer [*namespaces*]]
              [kabob.core.rule :refer [kabob-load-rules-from-classpath]]
              [kabob.build.output-kb :refer [output-kb]]
-             ;;[kabob.core.kabob]
+             [rules-tests.build-test.test-build-util :refer [validation-rules-list]]
              [clojure.pprint :refer [pprint]]))
-
-
-(def validation-rules '("rules/validation/valid_owl/list/rdf_list_has_multiple_rdf_first.clj"
-                         "rules/validation/valid_owl/list/rdf_list_has_multiple_rdf_rest.clj"
-                         "rules/validation/valid_owl/list/rdf_list_missing_first_and_rest.clj"
-                         "rules/validation/valid_owl/list/rdf_list_missing_rdf_first.clj"
-                         "rules/validation/valid_owl/list/rdf_list_missing_rdf_rest.clj"
-                         "rules/validation/valid_owl/list/rdf_list_not_rest_to_nil.clj"
-                         "rules/validation/valid_owl/list/rdf_list_does_not_end_with_nil.clj"))
-
 
 (defn run-rule [source-kb target-kb rule-path]
   "run a single build rule against source-kb and populate the target-kb with the rule output"
@@ -61,7 +51,7 @@
   (let [source-kb (test-kb list-missing-first-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 3))
+    (run-rule source-kb target-kb (nth validation-rules-list 3))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 1 however, for the detected invalid list
@@ -71,7 +61,7 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 3))
+    (run-rule source-kb target-kb (nth validation-rules-list 3))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists
@@ -90,7 +80,7 @@
   (let [source-kb (test-kb list-missing-rest-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 4))
+    (run-rule source-kb target-kb (nth validation-rules-list 4))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 1 however, for the detected invalid list
@@ -100,7 +90,7 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 4))
+    (run-rule source-kb target-kb (nth validation-rules-list 4))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists
@@ -118,7 +108,7 @@
   (let [source-kb (test-kb list-missing-first-and-rest-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 2))
+    (run-rule source-kb target-kb (nth validation-rules-list 2))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 1 however, for the detected invalid list
@@ -128,7 +118,7 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 2))
+    (run-rule source-kb target-kb (nth validation-rules-list 2))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists
@@ -151,7 +141,7 @@
   (let [source-kb (test-kb list-with-multiple-first-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 0))
+    (run-rule source-kb target-kb (nth validation-rules-list 0))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 2 however, for the detected invalid list
@@ -165,7 +155,7 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 0))
+    (run-rule source-kb target-kb (nth validation-rules-list 0))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists
@@ -189,7 +179,7 @@
   (let [source-kb (test-kb list-with-multiple-rest-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 1))
+    (run-rule source-kb target-kb (nth validation-rules-list 1))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 2 however, for the detected invalid list
@@ -203,7 +193,7 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 1))
+    (run-rule source-kb target-kb (nth validation-rules-list 1))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists
@@ -224,7 +214,7 @@
   (let [source-kb (test-kb list-connects-to-nil-with-not-rest-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 5))
+    (run-rule source-kb target-kb (nth validation-rules-list 5))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 1 however, for the detected invalid list
@@ -234,7 +224,7 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 5))
+    (run-rule source-kb target-kb (nth validation-rules-list 5))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists
@@ -253,7 +243,8 @@
   (let [source-kb (test-kb list-ends-with-nil-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 6))
+    (run-rule source-kb source-kb (nth validation-rules-list 6))
+    (run-rule source-kb target-kb (nth validation-rules-list 7))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 2 however, for the detected invalid list
@@ -267,7 +258,8 @@
   (let [source-kb (test-kb proper-list-triples)
         target-kb (test-kb '())]
 
-    (run-rule source-kb target-kb (nth validation-rules 6))
+    (run-rule source-kb source-kb (nth validation-rules-list 6))
+    (run-rule source-kb target-kb (nth validation-rules-list 7))
     ;; no new triples should be added, only the 4 rule metadata triples
     (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
     ;; the reported triple count should be 0 b/c there are no invalid lists

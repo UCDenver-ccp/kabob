@@ -42,19 +42,8 @@
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     select ?record ?bioentity1 ?bioentity2 ?physical_association ?has_participant {
 
-     {
-      select ?physical_association {
-          kice:MI_0915 obo:IAO_0000219 ?physical_association .
-          filter (?physical_association != obo:MI_0915) . # obo:physical_association
-       }
-      }
-
-     {
-      select ?has_participant {
-         kice:RO_0000057 obo:IAO_0000219 ?has_participant .
-         filter (?has_participant != obo:RO_0000057) . # obo:has_participant
-       }
-      }
+?physical_association rdf:type kice:temp_physical_association .
+?has_participant rdf:type kice:temp_has_participant .
 
       ?record rdf:type ccp:IAO_EXT_0001761 . # ccp:BIOPLEX_RECORD
       ?record obo:BFO_0000051 ?uniprot_identifier_a_field_value .

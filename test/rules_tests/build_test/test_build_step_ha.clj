@@ -16,7 +16,7 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             build-rules-step-fa
                                                             build-rules-step-fb
@@ -51,6 +51,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -289,14 +290,52 @@
 (deftest step-ha-test-protein-root-class-assertion
   (let [source-kb base-kb
         target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-ha 9)
+    (run-build-rule source-kb source-kb build-rules-step-ha 9)
+    (run-build-rule source-kb source-kb build-rules-step-ha 10)
 
-    ;; there are 2 proteins in the hierarchy that need to be directly linked to PR_000000001: PR_P37173 and PR_P37173-1
-    (is (= 2
-           (count (query target-kb '((?/s rdfs/subClassOf ?/o))))))
+    ;; there are 10 proteins in the hierarchy that need to be directly linked to PR_000000001: e.g. PR_P37173 and PR_P37173-1
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                                      (?/p rdfs/subClassOf ?/protein)
+                          (kice/REFSEQ_NP_003233 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/PR_P37173-1 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROTENTRYNAME_TGFR2_HUMAN obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROT_P37173 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/PR_P37173 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROT_B4DTV5 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROT_Q15580 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROT_Q6DKT6 obo/IAO_0000219 ?/p))))
+
+    (is (ask source-kb '((kice/CHEBI_36080 obo/IAO_0000219 ?/protein)
+                          (?/p rdfs/subClassOf ?/protein)
+                          (kice/UNIPROT_Q99474 obo/IAO_0000219 ?/p))))
 
     (let [log-kb (output-kb "/tmp/triples.nt")]
-      (run-build-rule source-kb log-kb build-rules-step-ha 9)
+      (run-build-rule source-kb log-kb build-rules-step-ha 10)
       (close log-kb))
 
 

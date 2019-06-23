@@ -16,15 +16,17 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             build-rules-step-fa
                                                             build-rules-step-fb
                                                             build-rules-step-ga build-rules-step-gb build-rules-step-gca
                                                             build-rules-step-gcb build-rules-step-gcc
                                                             build-rules-step-ha build-rules-step-hb build-rules-step-hca
-                                                            build-rules-step-hcb build-rules-step-hcc build-rules-step-hcd
-                                                            build-rules-step-hd-goa
+                                                            build-rules-step-hcb build-rules-step-hcca build-rules-step-hccb
+                                                            build-rules-step-hccc build-rules-step-hccd build-rules-step-hcd
+                                                            build-rules-step-hce
+                                                            build-rules-step-hd-temp build-rules-step-hd-goa
                                                             validation-rules-list validation-rules-restriction
                                                             expected-subpropertyof-links expected-inverseof-links
                                                             expected-subclassof-links expected-disjointwith-links
@@ -53,6 +55,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -77,8 +80,15 @@
                (run-build-rules source-kb build-rules-step-hb)
                (run-build-rules source-kb build-rules-step-hca)
                (run-build-rules source-kb build-rules-step-hcb)
-               (run-build-rules source-kb build-rules-step-hcc)
+               (run-build-rules source-kb build-rules-step-hcca)
+               (run-build-rules source-kb build-rules-step-hccb)
+               (run-build-rules source-kb build-rules-step-hccc)
+               (run-build-rules source-kb build-rules-step-hccd)
                (run-build-rules source-kb build-rules-step-hcd)
+               (run-build-rules source-kb build-rules-step-hce)
+               (run-build-rules source-kb build-rules-step-hd-temp)
+
+
                source-kb))
 
 
@@ -322,7 +332,8 @@
     ;; add 4 for the rule metadata
     (is (= 24 (count (query target-kb '((?/s ?/p ?/o))))))
 
-    (run-build-rule source-kb target-kb validation-rules-list 6)
+    (run-build-rule source-kb source-kb validation-rules-list 6)
+    (run-build-rule source-kb target-kb validation-rules-list 7)
     ;; add 4 for the rule metadata
     (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))))
 

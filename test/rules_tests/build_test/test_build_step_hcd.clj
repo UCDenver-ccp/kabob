@@ -16,14 +16,15 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             build-rules-step-fa
                                                             build-rules-step-fb
                                                             build-rules-step-ga build-rules-step-gb build-rules-step-gca
                                                             build-rules-step-gcb build-rules-step-gcc
                                                             build-rules-step-ha build-rules-step-hb
-                                                            build-rules-step-hca build-rules-step-hcb build-rules-step-hcc
+                                                            build-rules-step-hca build-rules-step-hcb build-rules-step-hcca build-rules-step-hccb
+                                                            build-rules-step-hccc build-rules-step-hccd
                                                             build-rules-step-hcd build-rules-step-hce
                                                             validation-rules-list validation-rules-restriction
                                                             expected-subpropertyof-links expected-inverseof-links
@@ -53,6 +54,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -77,7 +79,10 @@
                (run-build-rules source-kb build-rules-step-hb)
                (run-build-rules source-kb build-rules-step-hca)
                (run-build-rules source-kb build-rules-step-hcb)
-               (run-build-rules source-kb build-rules-step-hcc)
+               (run-build-rules source-kb build-rules-step-hcca)
+               (run-build-rules source-kb build-rules-step-hccb)
+               (run-build-rules source-kb build-rules-step-hccc)
+               (run-build-rules source-kb build-rules-step-hccd)
                source-kb))
 
 
@@ -89,34 +94,34 @@
 
 
 
-      (prn (str "--------------------------------"))
-      (doall (map #(prn (str %)) (sparql-query source-kb
-                                               "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
-                                               PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
-                                               PREFIX obo: <http://purl.obolibrary.org/obo/>
-                                               PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
-                                               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        select distinct ?id {
-                            ?g rdfs:subClassOf* ?gene .
-                            # to keep from climbing the gene hierarchy we require the genes to have a taxon
-                            #?g rdfs:subClassOf ?taxon_r .
-                            #?taxon_r rdf:type owl:Restriction .
-                            #?taxon_r owl:onProperty ?only_in_taxon .
-                            ?id obo:IAO_0000219 ?g .
+      ;(prn (str "--------------------------------"))
+      ;(doall (map #(prn (str %)) (sparql-query source-kb
+      ;                                         "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+      ;                                         PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
+      ;                                         PREFIX obo: <http://purl.obolibrary.org/obo/>
+      ;                                         PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
+      ;                                         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      ;  select distinct ?id {
+      ;                      ?g rdfs:subClassOf* ?gene .
+      ;                      # to keep from climbing the gene hierarchy we require the genes to have a taxon
+      ;                      #?g rdfs:subClassOf ?taxon_r .
+      ;                      #?taxon_r rdf:type owl:Restriction .
+      ;                      #?taxon_r owl:onProperty ?only_in_taxon .
+      ;                      ?id obo:IAO_0000219 ?g .
+      ;
+      ;                      {
+      ;                       select ?gene {
+      ;                                     kice:SO_0000704 obo:IAO_0000219 ?gene .
+      ;                                     filter (?gene != obo:SO_0000704) .
+      ;                                     }
+      ;                       }
+      ;
+      ;                      }"
+      ;                                         )))
+      ;(prn (str "--------------------------------"))
 
-                            {
-                             select ?gene {
-                                           kice:SO_0000704 obo:IAO_0000219 ?gene .
-                                           filter (?gene != obo:SO_0000704) .
-                                           }
-                             }
 
-                            }"
-                                               )))
-      (prn (str "--------------------------------"))
-
-
-      (prn (str "--------------------------------"))
+      (prn (str "-------------------------------- 5? genes "))
       (doall (map #(prn (str %)) (sparql-query source-kb
                                                "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
                                                PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
@@ -124,27 +129,129 @@
                                                PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
                                                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         select * {
-                            ?g rdfs:subClassOf* ?gene .
                             kice:SO_0000704 obo:IAO_0000219 ?gene .
+                            ?g rdfs:subClassOf* ?gene .
                             ?g rdfs:subClassOf ?taxon_r .
                             ?taxon_r owl:onProperty ?only_in_taxon .
-                            ?id_set obo:IAO_0000142 ?only_in_taxon .
-
-                            }"
+                            kice:RO_0002160 obo:IAO_0000219 ?only_in_taxon .
+                          }"
                                                )))
       (prn (str "--------------------------------"))
 
 
+
+
+      (prn (str "-------------------------------- 1 "))
+      (doall (map #(prn (str %)) (sparql-query source-kb
+                                               "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+                                               PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
+                                               PREFIX obo: <http://purl.obolibrary.org/obo/>
+                                               PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
+                                               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        select * {
+                            kice:UNIPROT_P37173-1 obo:IAO_0000219 ?p .
+                            ?p rdfs:subClassOf ?has_gene_template_r .
+                            ?has_gene_template_r owl:onProperty ?has_gene_template .
+                            <http://ccp.ucdenver.edu/kabob/ice/pr#has_gene_template> obo:IAO_0000219 ?has_gene_template .
+                          }"
+                                               )))
+      (prn (str "--------------------------------"))
+
+
+      (prn (str "-------------------------------- 2 "))
+      (doall (map #(prn (str %)) (sparql-query source-kb
+                                               "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+                                               PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
+                                               PREFIX obo: <http://purl.obolibrary.org/obo/>
+                                               PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
+                                               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        select * {
+                            kice:UNIPROT_P37173-1 obo:IAO_0000219 ?p .
+                            ?p rdfs:subClassOf ?has_gene_template_r .
+                            ?has_gene_template_r owl:onProperty ?has_gene_template .
+                            <http://ccp.ucdenver.edu/kabob/ice/pr#has_gene_template> obo:IAO_0000219 ?has_gene_template .
+                            ?has_gene_template_r owl:someValuesFrom ?g .
+                            ?g rdfs:subClassOf ?ggp_abstraction
+                          }"
+                                               )))
+      (prn (str "--------------------------------"))
+
+      (prn (str "-------------------------------- 3 "))
+      (doall (map #(prn (str %)) (sparql-query source-kb
+                                               "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+                                               PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
+                                               PREFIX obo: <http://purl.obolibrary.org/obo/>
+                                               PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
+                                               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        select * {
+                            kice:UNIPROT_P37173-1 obo:IAO_0000219 ?p .
+                            ?p rdfs:subClassOf ?has_gene_template_r .
+                            ?has_gene_template_r owl:onProperty ?has_gene_template .
+                            <http://ccp.ucdenver.edu/kabob/ice/pr#has_gene_template> obo:IAO_0000219 ?has_gene_template .
+                            ?has_gene_template_r owl:someValuesFrom ?g .
+                            ?g rdfs:subClassOf ?ggp_abstraction .
+                            ?ggp_abstraction rdfs:subClassOf ?c .
+
+                          }"
+                                               )))
+      (prn (str "--------------------------------"))
+
+
+      (prn (str "-------------------------------- 4 "))
+      (doall (map #(prn (str %)) (sparql-query source-kb
+                                               "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+                                               PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
+                                               PREFIX obo: <http://purl.obolibrary.org/obo/>
+                                               PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
+                                               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        select * {
+                            kice:UNIPROT_P37173-1 obo:IAO_0000219 ?p .
+                            ?p rdfs:subClassOf ?has_gene_template_r .
+                            ?has_gene_template_r owl:onProperty ?has_gene_template .
+                            <http://ccp.ucdenver.edu/kabob/ice/pr#has_gene_template> obo:IAO_0000219 ?has_gene_template .
+                            ?has_gene_template_r owl:someValuesFrom ?g .
+                            ?g rdfs:subClassOf ?ggp_abstraction .
+                            ?ggp_abstraction rdfs:subClassOf ?c .
+                            ?c rdfs:subClassOf ?c_sc .
+
+                          }"
+                                               )))
+      (prn (str "--------------------------------"))
+
+
+      (prn (str "-------------------------------- 5 "))
+      (doall (map #(prn (str %)) (sparql-query source-kb
+                                               "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+                                               PREFIX kice: <http://ccp.ucdenver.edu/kabob/ice/>
+                                               PREFIX obo: <http://purl.obolibrary.org/obo/>
+                                               PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
+                                               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        select * {
+                            kice:UNIPROT_P37173-1 obo:IAO_0000219 ?p .
+                            ?p rdfs:subClassOf ?has_gene_template_r .
+                            ?has_gene_template_r owl:onProperty ?has_gene_template .
+                            <http://ccp.ucdenver.edu/kabob/ice/pr#has_gene_template> obo:IAO_0000219 ?has_gene_template .
+                            ?has_gene_template_r owl:someValuesFrom ?g .
+                            ?g rdfs:subClassOf ?ggp_abstraction .
+                            ?ggp_abstraction rdfs:subClassOf ?c .
+                            ?id obo:IAO_0000219 ?c .
+
+                          }"
+                                               )))
+      (prn (str "--------------------------------"))
+
+
+
       ;; confirm that there are only 2 genes relations in the KB (bioworld)
-      (is (= 2 (count (distinct (query source-kb '((?/g [rdfs/subClassOf *] ?/gene)
+      (is (= 5 (count (distinct (query source-kb '((?/g [rdfs/subClassOf *] ?/gene)
                                           (kice/SO_0000704 obo/IAO_0000219 ?/gene)
                                           (?/g rdfs/subClassOf ?/taxon_r)
                                           (?/taxon_r owl/onProperty ?/only_in_taxon)
                                           ;; linking to id_set ensures ?/g is in bioworld
-                                          (?/id_set obo/IAO_0000142 ?/only_in_taxon)
                                           ))))))
 
       (run-build-rules source-kb build-rules-step-hcd 0)
+      ;(run-build-rules source-kb build-rules-step-hce 0)
       ;(run-build-rule source-kb source-kb build-rules-step-ib 0)
 
       ;(run-build-rule source-kb target-kb build-rules-step-ia 0)
@@ -168,30 +275,30 @@
                             (?/vgp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001719)) ;; ccp:variant_gene_product_abstraction
                ))
 
-    (is (ask source-kb '((kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/p)
-                          (?/p rdfs/subClassOf ?/has_gene_template_r)
-                          (?/has_gene_template_r owl/onProperty ?/has_gene_template)
-                          (kice/pr#has_gene_template obo/IAO_0000219 ?/has_gene_template)
-                          (?/id_set obo/IAO_0000142 ?/has_gene_template)
-                          (?/has_gene_template_r owl/someValuesFrom ?/g)
-                          (?/g rdfs/subClassOf ?/ggp_abstraction)
-                          (?/ggp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001715) ;; ccp:gene_or_gene_product_abstraction
-                          (?/g rdfs/subClassOf ?/ggv_abstraction)
-                          (?/ggv_abstraction rdfs/subClassOf ccp/IAO_EXT_1720) ;; ccp:gene_or_gene_variant_abstraction
-                          (?/ggv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-                          (?/ggpv_abstraction rdfs/subClassOf ccp/IAO_EXT_0001718) ;; ccp:gene_or_gene_product_or_variant_abstraction
-                          (?/ggp_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-                          (?/vg_abstraction rdfs/subClassOf ?/ggv_abstraction)
-                          (?/vg_abstraction rdfs/subClassOf ccp/IAO_EXT_0001717) ;; ccp:variant_gene_abstraction
-                          (?/gp_abstraction rdfs/subClassOf ?/ggp_abstraction)
-                          (?/gp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001716) ;; ccp:gene_product_abstraction
-                          (?/gp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-                          (?/gpgpv_abstraction rdfs/subClassOf ccp/IAO_EXT_0001721) ;; ccp:gene_product_or_gene_product_variant_abstraction
-                          (?/gpgpv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-                          (?/vgp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-                          (?/vgp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001719) ;; ccp:variant_gene_product_abstraction
-                          )
-             ))
+    ;(is (ask source-kb '((kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/p)
+    ;                      (?/p rdfs/subClassOf ?/has_gene_template_r)
+    ;                      (?/has_gene_template_r owl/onProperty ?/has_gene_template)
+    ;                      (kice/pr#has_gene_template obo/IAO_0000219 ?/has_gene_template)
+    ;                      ;(?/id_set obo/IAO_0000142 ?/has_gene_template)
+    ;                      (?/has_gene_template_r owl/someValuesFrom ?/g)
+    ;                      (?/g rdfs/subClassOf ?/ggp_abstraction)
+    ;                      (?/ggp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001715) ;; ccp:gene_or_gene_product_abstraction
+    ;                      (?/g rdfs/subClassOf ?/ggv_abstraction)
+    ;                      (?/ggv_abstraction rdfs/subClassOf ccp/IAO_EXT_1720) ;; ccp:gene_or_gene_variant_abstraction
+    ;                      (?/ggv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
+    ;                      (?/ggpv_abstraction rdfs/subClassOf ccp/IAO_EXT_0001718) ;; ccp:gene_or_gene_product_or_variant_abstraction
+    ;                      (?/ggp_abstraction rdfs/subClassOf ?/ggpv_abstraction)
+    ;                      (?/vg_abstraction rdfs/subClassOf ?/ggv_abstraction)
+    ;                      (?/vg_abstraction rdfs/subClassOf ccp/IAO_EXT_0001717) ;; ccp:variant_gene_abstraction
+    ;                      (?/gp_abstraction rdfs/subClassOf ?/ggp_abstraction)
+    ;                      (?/gp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001716) ;; ccp:gene_product_abstraction
+    ;                      (?/gp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
+    ;                      (?/gpgpv_abstraction rdfs/subClassOf ccp/IAO_EXT_0001721) ;; ccp:gene_product_or_gene_product_variant_abstraction
+    ;                      (?/gpgpv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
+    ;                      (?/vgp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
+    ;                      (?/vgp_abstraction rdfs/subClassOf ccp/IAO_EXT_0001719) ;; ccp:variant_gene_product_abstraction
+    ;                      )
+    ;         ))
 
     ;; there should now be two instances of GGPV (IAO_EXT_0001718)
     (is (= 2 (count (query source-kb '((?/ggpv_abstraction rdfs/subClassOf ccp/IAO_EXT_0001718))))))
@@ -258,7 +365,8 @@
     ;; add 4 for the rule metadata
     (is (= 24 (count (query target-kb '((?/s ?/p ?/o))))))
 
-    (run-build-rule source-kb target-kb validation-rules-list 6)
+    (run-build-rule source-kb source-kb validation-rules-list 6)
+    (run-build-rule source-kb target-kb validation-rules-list 7)
     ;; add 4 for the rule metadata
     (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))))
 

@@ -1,15 +1,24 @@
 #!/bin/bash
 
 # most downloads are handled by the file parser library, however the irefweb downloads sometimes terminate
-# prematurely so we use wget here to download the human irefweb file
+# prematurely so we use wget here to download the human irefweb file. The interpro downloads also have issues from
+# time to time, so they are downloaded here too just to be safe.
 mkdir -p /kabob_data/raw/irefweb
+mkdir -p /kabob_data/raw/interpro
 
 DATE=$(date +%m/%d/%Y)
 
 # wget the irefweb file using an automated retry-on-failure flag
-cd /kabob_data/raw/irefweb && { wget -c -t 0 --timeout 60 --waitretry 10 http://irefindex.org/download/irefindex/data/archive/release_14.0/psi_mitab/MITAB2.6/9606.mitab.07042015.txt.zip ; unzip -o 9606.mitab.07042015.txt.zip ; touch -mt 1504070000 9606.mitab.04072015.txt ; cd - ; }
-/kabob.git/scripts/download/create-metadata-file.sh /kabob_data/raw/irefweb/9606.mitab.04072015.txt  http://irefindex.org/download/irefindex/data/archive/release_14.0/psi_mitab/MITAB2.6/9606.mitab.07042015.txt.zip
+cd /kabob_data/raw/irefweb && { wget -c -t 0 --timeout 60 --waitretry 10 http://irefindex.org/download/irefindex/data/archive/release_15.0/psi_mitab/MITAB2.6/9606.mitab.22012018.txt.zip ; unzip 9606.mitab.22012018.txt.zip ; cd - ; }
+/kabob.git/scripts/download/create-metadata-file.sh /kabob_data/raw/irefweb/9606.mitab.01-22-2018.txt  http://irefindex.org/download/irefindex/data/archive/release_15.0/psi_mitab/MITAB2.6/9606.mitab.22012018.txt.zip
 
+# get the interpro.xml file
+cd /kabob_data/raw/interpro && { wget -c -t 0 --timeout 60 --waitretry 10 ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz ; cd - ; }
+/kabob.git/scripts/download/create-metadata-file.sh /kabob_data/raw/interpro/interpro.xml.gz  ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz
+
+# get the interpro protein2ipr.dat.gz file
+cd /kabob_data/raw/interpro && { wget -c -t 0 --timeout 60 --waitretry 10 ftp://ftp.ebi.ac.uk/pub/databases/interpro/protein2ipr.dat.gz ; cd - ; }
+/kabob.git/scripts/download/create-metadata-file.sh /kabob_data/raw/interpro/protein2ipr.dat.gz  ftp://ftp.ebi.ac.uk/pub/databases/interpro/protein2ipr.dat.gz
 
 
 # there are also resources that are not processed by the file parsers directly, e.g. the Reactome biopax OWL file.
@@ -36,3 +45,10 @@ cd /kabob_data/raw/biogrid && { wget -c -t 0 --timeout 60 --waitretry 10 https:/
 /kabob.git/scripts/download/create-metadata-file.sh /kabob_data/raw/biogrid/BIOGRID-ALL-LATEST.tab2.txt  https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.tab2.zip
 /kabob.git/scripts/download/create-metadata-file.sh /kabob_data/raw/biogrid/BIOGRID-CHEMICALS-LATEST.chemtab.txt  https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-CHEMICALS-LATEST.chemtab.zip
 
+
+# get various identifier mapping files from BioMart
+mkdir -p /kabob_data/raw/biomart
+cd /kabob_data/raw/biomart && { wget -O /kabob_data/raw/biomart/biomart-gene-identifier-mappings.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Query><Query  virtualSchemaName = "default" formatter = "TSV" header = "0" uniqueRows = "0" count = "" datasetConfigVersion = "0.6" >	<Dataset name = "hsapiens_gene_ensembl" interface = "default" >		<Attribute name = "ensembl_gene_id" />	<Attribute name = "entrezgene" /> <Attribute name = "hgnc_id" /> </Dataset></Query>'; cd - ;}
+cd /kabob_data/raw/biomart && { wget -O /kabob_data/raw/biomart/biomart-transcript-identifier-mappings.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Query><Query  virtualSchemaName = "default" formatter = "TSV" header = "0" uniqueRows = "0" count = "" datasetConfigVersion = "0.6" >	<Dataset name = "hsapiens_gene_ensembl" interface = "default" >		<Attribute name = "ensembl_gene_id" />		<Attribute name = "ensembl_transcript_id" /> <Attribute name = "rnacentral" /> </Dataset></Query>'; cd - ;}
+cd /kabob_data/raw/biomart && { wget -O /kabob_data/raw/biomart/biomart-protein-identifier-mappings.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Query><Query  virtualSchemaName = "default" formatter = "TSV" header = "0" uniqueRows = "0" count = "" datasetConfigVersion = "0.6" >	<Dataset name = "hsapiens_gene_ensembl" interface = "default" >		<Attribute name = "ensembl_gene_id" /> <Attribute name = "ensembl_peptide_id" /> <Attribute name = "uniprotswissprot" /> <Attribute name = "uniprotsptrembl" /> </Dataset></Query>'; cd - ;}
+cd /kabob_data/raw/biomart && { wget -O /kabob_data/raw/biomart/biomart-central-dogma-linkages.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Query><Query  virtualSchemaName = "default" formatter = "TSV" header = "0" uniqueRows = "0" count = "" datasetConfigVersion = "0.6" >	<Dataset name = "hsapiens_gene_ensembl" interface = "default" >		<Attribute name = "ensembl_gene_id" /> <Attribute name = "ensembl_transcript_id" /> <Attribute name = "ensembl_peptide_id" /> </Dataset></Query>'; cd - ;}

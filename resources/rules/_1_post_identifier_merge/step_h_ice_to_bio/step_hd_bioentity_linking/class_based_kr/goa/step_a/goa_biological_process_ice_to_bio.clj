@@ -36,12 +36,8 @@
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 SELECT ?participating_bioentity ?biological_process ?has_participant ?record
                 WHERE {
-                {
-                          select ?has_participant {
-                                                   kice:RO_0000057 obo:IAO_0000219 ?has_participant .
-                                                   filter (?has_participant != obo:RO_0000057) .
-                                                   }
-                          }
+
+                ?has_participant rdf:type kice:temp_has_participant .
                 ?go_bp_identifier rdfs:subClassOf ccp:IAO_EXT_0000103 . # CCP:GO_biological_process_identifier
                          ?go_identifier_field_value rdf:type ?go_bp_identifier .
                          ?go_identifier_field_value rdf:type ccp:IAO_EXT_0000014 . # ccp:GOA_GAF_v2.0_Annotation_record__ontology_term_identifier_field_value

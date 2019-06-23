@@ -235,13 +235,16 @@
               [["franzOption_memoryLimit" "franz:85g"]
                ["franzOption_memoryExhaustionWarningPercentage" "franz:95"]]
               rule)
+            ;; NOTE: use-inference = false causes errors when using the DISTINCT keyword in select queries.
+            ;; Code that makes use of *use-inference* has been commented out in kr.sesame.sparql, so changing
+            ;; the value of this variable will have NO EFFECT.
             kr.core.rdf/*use-inference* false]
     (binding [kr.core.rdf/*use-inference*
               (requested-rule-inference rule)]
       (prn (str "Processing rule: " (:name rule)))
       (let [source-connection (source-kb args)
             target-connection (rule-output-kb (:output-directory args) rule)]
-        (try (time (run-forward-rule source-connection target-connection rule))
+        (try (run-forward-rule source-connection target-connection rule)
              true
              (finally (close target-connection)
                       (close source-connection)))))))

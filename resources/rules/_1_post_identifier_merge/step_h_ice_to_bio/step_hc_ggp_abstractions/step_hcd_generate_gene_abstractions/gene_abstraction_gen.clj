@@ -56,27 +56,20 @@
                   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                     select distinct ?g ?ggp_label ?gp_label ?vgp_label ?vg_label ?ggpv_label ?ggv_label ?gpgpv_label {
 
-                    {
-                              select ?gene {
-                                            kice:SO_0000704 obo:IAO_0000219 ?gene .
-                                            filter (?gene != obo:SO_0000704) .
-                                            }
-                              }
-
-                         ?g rdfs:subClassOf* ?gene .
-                         optional {?g rdfs:label ?label}
-                         bind(coalesce(?label, \"Unnamed gene\") as ?gene_name)
-                         bind(concat(\"Gene or gene product abstraction for gene: \", str(?gene_name)) as ?ggp_label)
-                         bind(concat(\"Gene product abstraction for gene: \", str(?gene_name)) as ?gp_label)
-                         bind(concat(\"Variant gene product abstraction for gene: \", str(?gene_name)) as ?vgp_label)
-                         bind(concat(\"Variant gene abstraction for gene: \", str(?gene_name)) as ?vg_label)
-                         bind(concat(\"Gene or gene product or variant abstraction for gene: \", str(?gene_name)) as ?ggpv_label)
-                         bind(concat(\"Gene or gene variant abstraction for gene: \", str(?gene_name)) as ?ggv_label)
-                         bind(concat(\"Gene product or gene product variant abstraction for gene: \", str(?gene_name)) as ?gpgpv_label)
-                         # to keep from climbing the gene hierarchy we require the genes to have a taxon
-                         ?g rdfs:subClassOf ?taxon_r .
-                         ?taxon_r rdf:type owl:Restriction .
-                         ?taxon_r owl:onProperty ?only_in_taxon .
+                     ?g rdf:type kice:temp_gene .
+                     optional {?g rdfs:label ?label}
+                     bind(coalesce(?label, \"Unnamed gene\") as ?gene_name)
+                     bind(concat(\"Gene or gene product for \", str(?gene_name)) as ?ggp_label)
+                     bind(concat(\"Gene product for \", str(?gene_name)) as ?gp_label)
+                     bind(concat(\"Variant gene product for \", str(?gene_name)) as ?vgp_label)
+                     bind(concat(\"Variant gene for \", str(?gene_name)) as ?vg_label)
+                     bind(concat(\"Gene or gene product or variant for \", str(?gene_name)) as ?ggpv_label)
+                     bind(concat(\"Gene or gene variant for \", str(?gene_name)) as ?ggv_label)
+                     bind(concat(\"Gene product or gene product variant for \", str(?gene_name)) as ?gpgpv_label)
+                     # to keep from climbing the gene hierarchy we require the genes to have a taxon
+                     ?g rdfs:subClassOf ?taxon_r .
+                     ?taxon_r rdf:type owl:Restriction .
+                     ?taxon_r owl:onProperty ?only_in_taxon .
                     }"
   }
 

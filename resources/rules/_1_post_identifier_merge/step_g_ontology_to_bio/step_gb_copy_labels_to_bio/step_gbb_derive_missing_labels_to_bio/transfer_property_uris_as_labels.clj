@@ -10,7 +10,7 @@
           select distinct ?bioprop ?lbl {
             ?prop rdf:type owl:ObjectProperty .
             minus {?prop rdfs:label ?label .}
-            bind(concat(\"Unnamed: \", str(?prop)) as ?lbl)
+            bind(concat(\"No_label: \", str(?prop)) as ?lbl)
             ?id obo:IAO_0000219 ?prop .
             ?id obo:IAO_0000219 ?bioprop .
             filter (?prop != ?bioprop && contains(str(?bioprop),'http://ccp.ucdenver.edu/kabob/bio/'))

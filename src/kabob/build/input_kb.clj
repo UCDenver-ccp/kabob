@@ -1,4 +1,3 @@
-
 (ns kabob.build.input-kb
   (:require [kr.core.kb
              :refer [connection kb]]
@@ -11,25 +10,38 @@
   (:import [org.openrdf.rio RDFFormat]
            [org.openrdf.query.resultio TupleQueryResultFormat]
            [org.openrdf.repository.http HTTPRepository]
-          ; [virtuoso.rdf4j.driver VirtuosoRepository]
-           [com.complexible.stardog.api ConnectionConfiguration]
-           [com.complexible.stardog.sesame StardogRepository]))
-           ;[com.bigdata.rdf.sail.webapp.client RemoteRepositoryManager]))
+    ; [virtuoso.rdf4j.driver VirtuosoRepository]
+    ; [com.complexible.stardog.api ConnectionConfiguration]
+    ; [com.complexible.stardog.sesame StardogRepository]
+           [com.bigdata.rdf.sail.webapp.client RemoteRepositoryManager]))
 
 (defn initialize-kb [kb]
-  (register-namespaces (synch-ns-mappings (connection kb)) *namespaces*))
+  (try
+    (register-namespaces (synch-ns-mappings (connection kb)) *namespaces*)
+    (catch Exception e (do (prn (str "Caught Exception while registering namespaces with kb: "
+                                     (.getName (.getClass e)) (.getMessage e))) kb))))
+;;(.printStackTrace e)))))
+
+;(defn stardog-kb [args]
+;    (println "opening a stardog connection")
+;
+;    (let [server-url (:server-url args)
+;          repository-name (:repo-name args)
+;          user (:username args)
+;          password (:password args)
+;          kb (kb (StardogRepository. (.credentials (.server (ConnectionConfiguration/to repository-name) server-url) user password)))]
+;      (initialize-kb kb)))
 
 
-(defn stardog-kb [args]
-    (println "opening a stardog connection")
+(defn blazegraph-kb [args]
+  (println "opening a blazegraph connection")
 
-    (let [server-url (:server-url args)
-          repository-name (:repo-name args)
-          user (:username args)
-          password (:password args)
-          kb (kb (StardogRepository. (.credentials (.server (ConnectionConfiguration/to repository-name) server-url) user password)))]
-      (initialize-kb kb)))
-
+  (let [server-url (:server-url args)
+        repository-name (:repo-name args)
+        user (:username args)
+        password (:password args)
+        kb (kb (.getBigdataSailRemoteRepository (.getRepositoryForNamespace (RemoteRepositoryManager. server-url) repository-name)))]
+    kb))
 
 ;(defn blazegraph-kb [args]
 ;  (println "opening a blazegraph connection")
@@ -62,12 +74,14 @@
             *username* (:username args)
             *password* (:password args)]
 
-    (case (:server-impl args)
-      "stardog" (stardog-kb args)
-      ;"blazegraph" (blazegraph-kb args)
-      ;"virtuoso" (virtuoso-kb args)
-      ;; default is to open a connection to an HTTPRepository
-      (initialize-kb (kb HTTPRepository)))))
+    (initialize-kb (case (:server-impl args)
+                     ;"stardog" (stardog-kb args)
+                     "blazegraph" (blazegraph-kb args)
+                     :blazegraph (blazegraph-kb args)
+                     ;"virtuoso" (virtuoso-kb args)
+                     ;; default is to open a connection to an HTTPRepository
+                     ;(initialize-kb (kb HTTPRepository)))))
+                     ))))
 
 (def source-kb open-kb)
 

@@ -22,6 +22,6 @@
                   ?record obo:BFO_0000051 ?target_record_identifier_field_value .
                   ?target_record_identifier_field_value rdf:type ccp:IAO_EXT_0000814 . # CCP:PharmGKB_gene_record_entrez_gene_field value
                   ?target_record_identifier_field_value rdf:type ?other_protein_identifier .
-                  ?other_protein_identifier rdfs:subClassOf* ccp:IAO_EXT_0000183 . # CCP:gene_product_identifier
+                  ?other_protein_identifier rdfs:subClassOf ccp:IAO_EXT_0000183 . # CCP:gene_product_identifier
          }"
 }

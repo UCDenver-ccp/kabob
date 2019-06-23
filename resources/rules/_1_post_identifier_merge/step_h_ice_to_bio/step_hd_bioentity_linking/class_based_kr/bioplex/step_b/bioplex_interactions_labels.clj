@@ -23,11 +23,12 @@
     ?b2_sc rdfs:subClassOf ?b2 .
 
     optional {?b1 rdfs:label ?label1}
-    bind(coalesce(?label1, \"Unnamed interacting protein\") as ?b1_name)
-    bind(concat(str(?b1_name), \"; interaction participant\") as ?b1_label)
+    bind(coalesce(?label1, \"Unnamed protein\") as ?b1_name)
+
     optional {?b2 rdfs:label ?label2}
-    bind(coalesce(?label2, \"Unnamed interacting protein\") as ?b2_name)
-    bind(concat(str(?b2_name), \"; interaction participant\") as ?b2_label)
-    bind(concat(\"Protein-protein interaction between \", str(?b1_name), \" and \", str(?b2_name)) as ?interaction_label)
+    bind(coalesce(?label2, \"Unnamed protein\") as ?b2_name)
+    bind(concat(str(?b1_name), \"; interacts with \", str(?b2_name)) as ?b1_label)
+    bind(concat(str(?b2_name), \"; interacts with \", str(?b1_name)) as ?b2_label)
+    bind(concat(str(?b1_name), \" and \", str(?b2_name), \" interaction\") as ?interaction_label)
     }"
   }

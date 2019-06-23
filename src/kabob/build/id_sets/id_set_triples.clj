@@ -134,8 +134,8 @@
                                                              ?id2 rdfs:subClassOf ?idtype2 .
                                                              filter (?idtype1 != ccp:IAO_EXT_0000342)
                                                              filter (?idtype2 != ccp:IAO_EXT_0000342)
-                                                             minus {?idtype1 rdfs:subClassOf* ccp:IAO_EXT_0000307}
-                                                             minus {?idtype2 rdfs:subClassOf* ccp:IAO_EXT_0000307}
+                                                             minus {?idtype1 rdfs:subClassOf ccp:IAO_EXT_0000307}
+                                                             minus {?idtype2 rdfs:subClassOf ccp:IAO_EXT_0000307}
                                                              }")]
       (reduce cljset/union #{} (map (fn [bindings] (let [idtype1 (get bindings '?/idtype1 nil)
                                                               idtype2 (get bindings '?/idtype2 nil)]
@@ -169,6 +169,8 @@
                                       minus {?id skos:exactMatch ?y}
                                       # exclude any identifiers that are obsolete
                                       minus {?id rdfs:subClassOf ccp:IAO_EXT_0001711}
+                                      # exclude ontology identifiers; they are handled by a separate query
+                                      minus {?id rdfs:subClassOf ccp:IAO_EXT_0000307}
                                       # exclude any classes of identifiers. this filter is an argument for
                                       #using rdf:type instead of rdfs:subClassOf in the identifier hierarchy
                                       filter (!contains (str(?id), 'ext/IAO_'))
@@ -254,7 +256,7 @@
     (println "timing count:")
     (let [query-body
           "where {
-                     ?id rdfs:subClassOf* ccp:IAO_EXT_0000307 . # ontology identifier
+                     ?id rdfs:subClassOf ccp:IAO_EXT_0000307 . # ontology identifier
                          # exclude any identifiers that participate in a skos:exactMatch relationship
                          minus {?x skos:exactMatch ?id}
                          minus {?id skos:exactMatch ?y}

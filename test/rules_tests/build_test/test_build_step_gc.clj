@@ -16,7 +16,7 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             build-rules-step-fa
                                                             build-rules-step-fb
@@ -53,6 +53,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -502,9 +503,14 @@
     ;; add 4 for the rule metadata
     (is (= 24 (count (query target-kb '((?/s ?/p ?/o))))))
 
-    (run-build-rule source-kb target-kb validation-rules-list 6)
+    (run-build-rule source-kb source-kb validation-rules-list 6)
     ;; add 4 for the rule metadata
-    (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))))
+   ;; (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))
+
+    (run-build-rule source-kb target-kb validation-rules-list 7)
+    ;; add 4 for the rule metadata
+    (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))
+    ))
 
 
 ;; validate restriction structures

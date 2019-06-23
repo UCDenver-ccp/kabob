@@ -26,13 +26,13 @@
 
           optional {?b1 rdfs:label ?label1}
           bind(coalesce(?label1, \"Unnamed interacting bioentity\") as ?bioentity1_name)
-          bind(concat(str(?bioentity1_name), \"; interaction participant\") as ?bioentity1_label)
-
 
           optional {?b2 rdfs:label ?label2}
           bind(coalesce(?label2, \"Unnamed interacting bioentity\") as ?bioentity2_name)
-          bind(concat(str(?bioentity2_name), \"; interaction participant\") as ?bioentity2_label)
-          bind(concat(\"Interaction between \", str(?bioentity1_name), \" and \", str(?bioentity2_name)) as ?interaction_label)
+
+          bind(concat(str(?bioentity1_name), \"; interacts with \", str(?bioentity2_name)) as ?bioentity1_label)
+          bind(concat(str(?bioentity2_name), \"; interacts with \", str(?bioentity1_name)) as ?bioentity2_label)
+          bind(concat(str(?bioentity1_name), \" and \", str(?bioentity2_name), \" interaction\") as ?interaction_label)
 
           }"
 

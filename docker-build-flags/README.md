@@ -1,0 +1,1 @@
+These flags are useful for development to force the Docker build to re-install various software libraries by re-cloning them from GitHub. To force a rebuild for a specific library, just change the contents of the corresponding file, e.g. `date > do.datasource`.

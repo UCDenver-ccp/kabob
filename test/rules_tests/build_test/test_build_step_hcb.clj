@@ -16,15 +16,14 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             build-rules-step-fa
                                                             build-rules-step-fb
                                                             build-rules-step-ga build-rules-step-gb build-rules-step-gca
                                                             build-rules-step-gcb build-rules-step-gcc
                                                             build-rules-step-ha build-rules-step-hb
-                                                            build-rules-step-hca build-rules-step-hcb build-rules-step-hcc
-                                                            build-rules-step-hcd build-rules-step-hce
+                                                            build-rules-step-hca build-rules-step-hcb
                                                             validation-rules-list validation-rules-restriction
                                                             expected-subpropertyof-links expected-inverseof-links
                                                             expected-subclassof-links expected-disjointwith-links
@@ -53,6 +52,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -80,470 +80,252 @@
 
 
 ;;; Test that proteins not involved in a has_gene_template relation get a corresponding gene
-(deftest step-hcb-missing-gene-gen
+(deftest step-hcc-ncbi-gene-assign-taxon
   (let [source-kb base-kb
         target-kb (test-kb '())]
 
-    ;; confirm that there are only 3 has_gene_template relations in the KB (2 from pr.owl and 1 generated from a rule)
-    (is (= 3 (count (query source-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        (kice/pr#has_gene_template obo/IAO_0000219 ?/prop))))))
-
-    (run-build-rule source-kb source-kb build-rules-step-hcb 0)
-
-    ;(run-build-rule source-kb target-kb build-rules-step-hcb 0)
+    (run-build-rule source-kb target-kb build-rules-step-hcb 0)
 
 
-    (is (ask source-kb '(
-                          (?/protein_coding_gene rdfs/subClassOf ?/protein_coding_gene_bioentity)
-                          (?/taxon_r rdf/type owl/Restriction)
+;    (prn (str "--------------------------------"))
+;    (doall (map #(prn (str %)) (sparql-query source-kb
+;     "PREFIX obo: <http://purl.obolibrary.org/obo/>
+;     PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+;     prefix kice: <http://ccp.ucdenver.edu/kabob/ice/>
+;     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+;    SELECT ?taxon ?bioentity ?only_in_taxon ?gene_id
+;WHERE {  ?record rdf:type ccp:IAO_EXT_0000681 . # ccp:NCBI_gene_record
+;    ?record obo:BFO_0000051 ?gene_field_value . # BFO:has_part
+;    ?gene_field_value rdf:type ccp:IAO_EXT_0000876 . # ccp:NCBI_gene_info_record__gene_identifier_field_value
+;    ?gene_field_value rdf:type ?gene_id .
+;       ?gene_id obo:IAO_0000219 ?bioentity . # IAO:denotes
+;    ?record obo:BFO_0000051 ?taxon_field_value . #BFO:has_part
+;    ?taxon_field_value rdf:type ccp:IAO_EXT_0000875 . # ccp:NCBI_gene_info_record__taxon_identifier_field_value
+;    ?taxon_field_value rdf:type ?taxon_id .
+;       ?taxon_id obo:IAO_0000219 ?taxon . # IAO:denotes
+;    # ensure it's a kabob bioentity (not an obo bioentity)
+;       filter (contains (str(?taxon), 'http://ccp.ucdenver.edu/kabob/bio/'))
+;
+;       {
+;        select ?only_in_taxon {
+;                               kice:RO_0002160 obo:IAO_0000219 ?only_in_taxon .
+;                               filter (?only_in_taxon != obo:RO_0002160) .
+;                               }
+;        }
+;       }"
+;                                             )))
+;    (prn (str "--------------------------------"))
+
+
+    ;; confirm that the restriction on gene (NCBI_GENE_7048; HGNC_11773) exists
+    (is (ask source-kb '((kice/HGNC_11773 obo/IAO_0000219 ?/bioentity)
+                          (?/bioentity rdfs/subClassOf ?/taxon_r)
                           (?/taxon_r owl/onProperty ?/only_in_taxon)
-                          (kice/RO_0002160 obo/IAO_0000219 ?/only_in_taxon) ; RO:only_in_taxon
-                          (?/taxon_r owl/someValuesFrom ?/taxon)
-                          (kice/NCBITaxon_9606 obo/IAO_0000219 ?/taxon)
-                          (?/protein_coding_gene rdfs/subClassOf ?/taxon_r)
-                          (?/has_gene_template_r rdf/type owl/Restriction)
-                          (?/has_gene_template_r owl/onProperty ?/has_gene_template)
-                          (?/id_set obo/IAO_0000142 ?/has_gene_template)
-                          (kice/pr#has_gene_template obo/IAO_0000219 ?/has_gene_template)
-                          (?/has_gene_template_r owl/someValuesFrom ?/protein_coding_gene)
-                          (?/protein_missing_gene rdfs/subClassOf ?/has_gene_template_r)
-                          (kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/protein_missing_gene)
-                          )))
+                          (kice/RO_0002160 obo/IAO_0000219 ?/only_in_taxon))))
 
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 4 (count (query source-kb '((?/r rdf/type owl/Restriction)
+    (is (ask source-kb '((kice/NCBI_GENE_7048 obo/IAO_0000219 ?/bioentity)
+                          (?/bioentity rdfs/subClassOf ?/taxon_r)
+                          (?/taxon_r owl/onProperty ?/only_in_taxon)
+                          (kice/RO_0002160 obo/IAO_0000219 ?/only_in_taxon))))
+
+    ;; although there is a NCBI Gene with a taxon field specified, this particular gene already has a
+    ;; only_in_taxon restriction that should have been brought in by the Protein Ontology
+    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
                                         (?/r owl/onProperty ?/prop)
-                                        (kice/pr#has_gene_template obo/IAO_0000219 ?/prop))))))
+                                        (?/b rdfs/subClassOf ?/r)
+                                        )))))
+
+    (let [log-kb (output-kb "/tmp/triples.nt")]
+      (run-build-rule source-kb log-kb build-rules-step-hcb 0)
+      (close log-kb))
+
+    ))
+
+
+(deftest step-hcc-refseq-assign-taxon
+  (let [source-kb base-kb
+        target-kb (test-kb '())]
+
+    (run-build-rule source-kb target-kb build-rules-step-hcb 1)
+
+
+    ;;REFSEQ_NP_006752
+    ;;REFSEQ_NP_001020018 - b/c it links to a uniprot isoform that is not brought in by the protein ontology
+    (is (= 2 (count (query target-kb '((?/r rdf/type owl/Restriction)
+                                        (?/r owl/onProperty ?/prop)
+                                        (?/b rdfs/subClassOf ?/r)
+                                        )))))
+
+    ;(let [log-kb (output-kb "/tmp/triples.nt")]
+    ;  (run-build-rule source-kb log-kb build-rules-step-hcb 1)
+    ;  (close log-kb))
+
+  ;  (prn (str "--------------------------------"))
+  ;  (doall (map #(prn (str %)) (sparql-query source-kb
+  ;                                           "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+  ;prefix kice: <http://ccp.ucdenver.edu/kabob/ice/>
+  ;PREFIX obo: <http://purl.obolibrary.org/obo/>
+  ;PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  ;  SELECT distinct ?bioentity ?taxon ?only_in_taxon ?refseq_id
+  ;WHERE {
+  ;{
+  ;    select ?only_in_taxon {
+  ;                           kice:RO_0002160 obo:IAO_0000219 ?only_in_taxon .
+  ;                           filter (?only_in_taxon != obo:RO_0002160) .
+  ;                           }
+  ;    }
+  ;?record rdf:type ccp:IAO_EXT_0000792 . # ccp:RefSeq_catalog_record
+  ;  ?record obo:BFO_0000051 ?catalog_field_value . # BFO:has_part
+  ;  ?catalog_field_value rdf:type ccp:IAO_EXT_0000800 . # ccp:RefSeq_catalog_record__RefSeq_identifier_field_value
+  ;  ?catalog_field_value rdf:type ?refseq_id .
+  ;       ?refseq_id obo:IAO_0000219 ?bioentity . # IAO:denotes
+  ;  ?record obo:BFO_0000051 ?taxon_field_value . # BFO:has_part
+  ;  ?taxon_field_value rdf:type ccp:IAO_EXT_0000796 . # ccp:RefSeq_catalog_record__taxonomy_identifier_field_value
+  ;  ?taxon_field_value rdf:type ?taxon_id .
+  ;       ?taxon_id obo:IAO_0000219 ?taxon . # IAO:denotes
+  ;  # ensure it's a kabob bioentity (not an obo bioentity)
+  ;       filter (contains (str(?taxon), 'http://ccp.ucdenver.edu/kabob/bio/'))
+  ;
+  ;       # ignore any bioentities that already have a taxon restriction
+  ;#minus {
+  ;#       ?bioentity rdfs:subClassOf ?taxon_r .
+  ;#       ?taxon_r owl:onProperty ?only_in_taxon .
+  ;#       }
+  ;
+  ;
+  ;
+  ; }"
+  ;                                           )))
+  ;
+  ;  (prn (str "--------------------------------"))
+
+
+
+
+    ))
+
+(deftest step-hcc-uniprot-assign-taxon
+  (let [source-kb base-kb
+        target-kb (test-kb '())]
+
+
+;    (prn (str "--------------------------------"))
+;    (doall (map #(prn (str %)) (sparql-query source-kb
+;                                             "PREFIX obo: <http://purl.obolibrary.org/obo/>
+;                                             PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
+;                                             prefix kice: <http://ccp.ucdenver.edu/kabob/ice/>
+;                                             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+;    SELECT ?uniprot_id ?taxon ?bioentity ?only_in_taxon
+;WHERE {  ?record rdf:type ccp:IAO_EXT_0000234 . # ccp:UniProt_protein_record
+;    ?record obo:BFO_0000051 ?primary_accession_field_value . # BFO:has_part
+;    ?primary_accession_field_value rdf:type ccp:IAO_EXT_0000240 . # ccp:UniProt_protein_record__primary_accession_field_value
+;    ?primary_accession_field_value rdf:type ?uniprot_id .
+;       ?uniprot_id obo:IAO_0000219 ?bioentity . # IAO:denotes
+;    ?record obo:BFO_0000051 ?organism_record . # BFO:has_part
+;    ?organism_record rdf:type ccp:IAO_EXT_0000935 . # ccp:UniProt_protein_record__organism_field_value
+;    ?organism_record rdf:type ccp:IAO_EXT_0000972 . # ccp:uniprot_organism_record
+;    ?organism_record obo:BFO_0000051 ?db_ref_record .
+;       ?db_ref_record rdf:type ccp:IAO_EXT_0000955 . # ccp:uniprot_db_reference_record
+;    ?db_ref_record obo:BFO_0000051 ?id_field_value .
+;       ?id_field_value rdf:type ccp:IAO_EXT_0001127 . # ccp:uniprot_db_reference_record__identifier_field_value
+;    ?id_field_value rdf:type ?taxon_id .
+;       ?taxon_id rdfs:subClassOf ccp:IAO_EXT_0000204 . # ccp:NCBITaxon_identifier
+;    ?taxon_id obo:IAO_0000219 ?taxon . # IAO:denotes
+;    # ensure it's a kabob bioentity (not an obo bioentity)
+;       filter (contains (str(?taxon), 'http://ccp.ucdenver.edu/kabob/bio/'))
+;
+;       # ignore any bioentities that already have a taxon restriction
+;       minus {
+;              ?bioentity rdfs:subClassOf ?taxon_r .
+;              ?taxon_r owl:onProperty ?only_in_taxon .
+;              }
+;
+;       {
+;        select ?only_in_taxon {
+;                               kice:RO_0002160 obo:IAO_0000219 ?only_in_taxon .
+;                               filter (?only_in_taxon != obo:RO_0002160) .
+;                               }
+;        }
+;       }"
+;                                             )))
+;    (prn (str "--------------------------------"))
+
+    (run-build-rule source-kb target-kb build-rules-step-hcb 2)
+
+
+    ;; P62258 is assigned a taxon. P37173 is not b/c it already has one assigned by the Protein Ontology
+    (is (= 1 (count (query target-kb '((?/r rdf/type owl/Restriction)
+                                        (?/r owl/onProperty ?/prop)
+                                        (?/b rdfs/subClassOf ?/r)
+                                        )))))
 
     ;(let [log-kb (output-kb "/tmp/triples.nt")]
     ;  (run-build-rule source-kb log-kb build-rules-step-ia 0)
     ;  (close log-kb))
 
-    ;(prn (str "--------------------------------"))
-    ;(doall (map #(prn (str %)) (sparql-query source-kb
-    ;                                         "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
-    ;                                         PREFIX obo: <http://purl.obolibrary.org/obo/>
-    ;                                         PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
-    ;                                         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    ;select distinct ?protein_id ?protein_missing_gene ?protein ?has_gene_template ?protein_coding_gene_bioentity  ?hgt_id {
-    ;          ?protein_missing_gene rdfs:subClassOf* ?protein .
-    ;          # to keep from climbing the protein hierarchy too high we require the protein to have a taxon
-    ;          ?protein_missing_gene rdfs:subClassOf ?taxon_r .
-    ;          ?taxon_r rdf:type owl:Restriction .
-    ;          ?taxon_r owl:onProperty ?in_taxon .
-    ;          ?taxon_r owl:someValuesFrom ?taxon .
-    ;          ?protein_id obo:IAO_0000219 ?protein_missing_gene .
-    ;          # exclude proteins that already have a has_gene_template restriction (likely imported via pr.owl)
-    ;          filter not exists {
-    ;                             ?protein_missing_gene rdfs:subClassOf ?has_gene_template_r .
-    ;                             ?has_gene_template_r rdf:type owl:Restriction .
-    ;                             ?has_gene_template_r owl:onProperty ?has_gene_template .
-    ;                             }
-    ;
-    ;
-    ;          {
-    ;           select ?only_in_taxon {
-    ;                            ccp:RO_0002160 obo:IAO_0000219 ?only_in_taxon .
-    ;                            filter (?only_in_taxon != obo:RO_0002160) .
-    ;                            }
-    ;           }
-    ;
-    ;                       {
-    ;                        select ?protein {
-    ;                                         ccp:CHEBI_36080 obo:IAO_0000219 ?protein .
-    ;                                         filter (?protein != obo:CHEBI_36080) .
-    ;                                         }
-    ;                        }
-    ;
-    ;                                             {
-    ;                                              select ?has_gene_template ?hgt_id {
-    ;                                                                         <http://ccp.ucdenver.edu/obo/ext/pr#has_gene_template> obo:IAO_0000219 ?has_gene_template .
-    ;                                                                         ?hgt_id obo:IAO_0000219 ?has_gene_template .
-    ;                                                                                 filter (?has_gene_template != <http://purl.obolibrary.org/obo/pr#has_gene_template>) .
-    ;                                                                         }
-    ;                                              }
-    ;                       {
-    ;                        # get the kabob bioentity that corresponds to SO:gene
-    ;                                  select ?protein_coding_gene_bioentity {
-    ;                                                                         ccp:SO_0001217 obo:IAO_0000219 ?protein_coding_gene_bioentity . # OBO:denotes
-    ;                           filter (?protein_coding_gene_bioentity != obo:SO_0001217) # OBO:gene
-    ;                           }
-    ;                                                                         }
-    ;                        }"
-    ;                                         )))
-    ;
-    ;(prn (str "--------------------------------"))
-
     ))
-
-
-(deftest step-hcb-missing-ncrna-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 1)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
-
-(deftest step-hcb-missing-protein-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 2)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
-(deftest step-hcb-missing-rrna-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 3)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
-(deftest step-hcb-missing-scrna-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 4)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
-
-(deftest step-hcb-missing-snorna-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 5)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
-(deftest step-hcb-missing-snrna-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 6)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
-(deftest step-hcb-missing-trna-gen
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rule source-kb target-kb build-rules-step-hcb 7)
-
-    ;; there should now be just one more has_gene_template relation in the KB (so 4 total; see query above)
-    (is (= 0 (count (query target-kb '((?/r rdf/type owl/Restriction)
-                                        (?/r owl/onProperty ?/prop)
-                                        )))))
-    ))
-
 
 ;
-;
-;;;; Test the addition of the gene abstraction layers for each gene
-;(deftest step-ib-add-gene-abstraction-layers
+;;; validate list structures
+;(deftest step-hcc-test-with-validation-rules-lists
 ;  (let [source-kb base-kb
 ;        target-kb (test-kb '())]
-;    (run-build-rules source-kb build-rules-step-hca)
-;    (run-build-rules source-kb build-rules-step-hcc 0)
+;    (run-build-rules source-kb build-rules-step-hcb)
 ;
-;    ;; confirm that there are only 2 genes relations in the KB (bioworld)
-;    (is (= 2 (count (query source-kb '((?/g [rdfs/subClassOf *] ?/gene)
-;                                        (kice/SO_0000704 obo/IAO_0000219 ?/gene)
-;                                        (?/g rdfs/subClassOf ?/taxon_r)
-;                                        (?/taxon_r owl/onProperty ?/only_in_taxon)
-;                                        ;; linking to id_set ensures ?/g is in bioworld
-;                                        (?/id_set obo/IAO_0000142 ?/only_in_taxon)
-;                                        )))))
+;    (run-build-rule source-kb target-kb validation-rules-list 0)
+;    ;; add 4 for the rule metadata
+;    (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;    (run-build-rule source-kb source-kb build-rules-step-ib 0)
+;    (run-build-rule source-kb target-kb validation-rules-list 1)
+;    ;; add 4 for the rule metadata
+;    (is (= 8 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;    ;(run-build-rule source-kb target-kb build-rules-step-ia 0)
+;    (run-build-rule source-kb target-kb validation-rules-list 2)
+;    ;; add 4 for the rule metadata
+;    (is (= 12 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;    (is (ask source-kb '((kice/HGNC_11773 obo/IAO_0000219 ?/g)
-;                          (?/g rdfs/subClassOf ?/ggp_abstraction)
-;                          (?/ggp_abstraction rdf/type ccp/IAO_EXT_0001715) ;; ccp:gene_or_gene_product_abstraction
-;                          (?/g rdfs/subClassOf ?/ggv_abstraction)
-;                          (?/ggv_abstraction rdf/type ccp/IAO_EXT_1720) ;; ccp:gene_or_gene_variant_abstraction
-;                          (?/ggv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                          (?/ggpv_abstraction rdf/type ccp/IAO_EXT_0001718) ;; ccp:gene_or_gene_product_or_variant_abstraction
-;                          (?/ggp_abstraction rdf/subClassOf ?/ggpv_abstraction)
-;                          (?/vg_abstraction rdfs/subClassOf ?/ggv_abstraction)
-;                          (?/vg_abstraction rdf/type ccp/IAO_EXT_0001717) ;; ccp:variant_gene_abstraction
-;                          (?/gp_abstraction rdfs/subClassOf ?/ggp_abstraction)
-;                          (?/gp_abstraction rdf/type ccp/IAO_EXT_0001716) ;; ccp:gene_product_abstraction
-;                          (?/gp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                          (?/gpgpv_abstraction rdf/type ccp/IAO_EXT_0001721) ;; ccp:gene_product_or_gene_product_variant_abstraction
-;                          (?/gpgpv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                          (?/vgp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                          (?/vgp_abstraction rdf/type ccp/IAO_EXT_0001719)) ;; ccp:variant_gene_product_abstraction
-;             ))
+;    (run-build-rule source-kb target-kb validation-rules-list 3)
+;    ;; add 4 for the rule metadata
+;    (is (= 16 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;  (is (ask source-kb '((kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/p)
-;                        (?/p rdfs/subClassOf ?/has_gene_template_r)
-;                        (?/has_gene_template_r owl/onProperty ?/has_gene_template)
-;                        (kice/pr#has_gene_template obo/IAO_0000219 ?/has_gene_template)
-;                        (?/id_set obo/IAO_0000142 ?/has_gene_template)
-;                        (?/has_gene_template_r owl/someValuesFrom ?/g)
-;                        (?/g rdfs/subClassOf ?/ggp_abstraction)
-;                        (?/ggp_abstraction rdf/type ccp/IAO_EXT_0001715) ;; ccp:gene_or_gene_product_abstraction
-;                        (?/g rdfs/subClassOf ?/ggv_abstraction)
-;                        (?/ggv_abstraction rdf/type ccp/IAO_EXT_1720) ;; ccp:gene_or_gene_variant_abstraction
-;                        (?/ggv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                        (?/ggpv_abstraction rdf/type ccp/IAO_EXT_0001718) ;; ccp:gene_or_gene_product_or_variant_abstraction
-;                        (?/ggp_abstraction rdf/subClassOf ?/ggpv_abstraction)
-;                        (?/vg_abstraction rdfs/subClassOf ?/ggv_abstraction)
-;                        (?/vg_abstraction rdf/type ccp/IAO_EXT_0001717) ;; ccp:variant_gene_abstraction
-;                        (?/gp_abstraction rdfs/subClassOf ?/ggp_abstraction)
-;                        (?/gp_abstraction rdf/type ccp/IAO_EXT_0001716) ;; ccp:gene_product_abstraction
-;                        (?/gp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                        (?/gpgpv_abstraction rdf/type ccp/IAO_EXT_0001721) ;; ccp:gene_product_or_gene_product_variant_abstraction
-;                        (?/gpgpv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                        (?/vgp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                        (?/vgp_abstraction rdf/type ccp/IAO_EXT_0001719) ;; ccp:variant_gene_product_abstraction
-;                        )
-;           ))
+;    (run-build-rule source-kb target-kb validation-rules-list 4)
+;    ;; add 4 for the rule metadata
+;    (is (= 20 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;  ;; there should now be two instances of GGPV (IAO_EXT_0001718)
-;  (is (= 2 (count (query source-kb '((?/ggpv_abstraction rdf/type ccp/IAO_EXT_0001718))))))
+;    (run-build-rule source-kb target-kb validation-rules-list 5)
+;    ;; add 4 for the rule metadata
+;    (is (= 24 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;  ;(let [log-kb (output-kb "/tmp/triples.nt")]
-;  ;  (run-build-rule source-kb log-kb build-rules-step-ib 0)
-;  ;  (close log-kb))
-;
-;  ;(prn (str "--------------------------------"))
-;  ;(doall (map #(prn (str %)) (sparql-query source-kb
-;  ;                                         "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
-;  ;                                         PREFIX obo: <http://purl.obolibrary.org/obo/>
-;  ;                                         PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
-;  ;                                         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-;  ;  select distinct ?g {
-;  ;                      ?g rdfs:subClassOf* ?gene .
-;  ;                      # to keep from climbing the gene hierarchy we require the genes to have a taxon
-;  ;                      ?g rdfs:subClassOf ?taxon_r .
-;  ;                      ?taxon_r rdf:type owl:Restriction .
-;  ;                      ?taxon_r owl:onProperty ?only_in_taxon .
-;  ;
-;  ;                      {
-;  ;                       select ?gene {
-;  ;                                     ccp:SO_0000704 obo:IAO_0000219 ?gene .
-;  ;                                     filter (?gene != obo:SO_0000704) .
-;  ;                                     }
-;  ;                       }
-;  ;
-;  ;                      }"
-;  ;                                         )))
-;  ;(prn (str "--------------------------------"))
-;
-;  ) )
+;    (run-build-rule source-kb target-kb validation-rules-list 6)
+;    ;; add 4 for the rule metadata
+;    (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))))
 ;
 ;
-;;;; Test the linking of proteins to the gene_product_abstraction nodes
-;(deftest step-ic-test-link-proteins-to-gp-abstractions
-;  (let [source-kb (test-kb initial-plus-ice-triples)
+;;; validate restriction structures
+;(deftest step-hcc-test-with-validation-rules-restrictions
+;  (let [source-kb base-kb
 ;        target-kb (test-kb '())]
-;    (run-build-rules source-kb build-rules-step-a)
-;    (run-build-rules source-kb build-rules-step-b)
-;    (run-build-rules source-kb build-rules-step-ca)
-;    (run-build-rules source-kb build-rules-step-cb)
-;    (run-build-rules source-kb build-rules-step-cc)
-;    (run-build-rules source-kb build-rules-step-da)
-;    (run-build-rules source-kb build-rules-step-db)
-;    (run-build-rules source-kb build-rules-step-dc)
+;    (run-build-rules source-kb build-rules-step-hcb)
 ;
-;    (with-tmp-dir
-;      ;; generate identifier set ntriple files and load into the source-kb
-;      (generate-all-id-sets source-kb (str tmp-dir "/"))
-;      (dorun (map (fn [f] (load-rdf source-kb (java.util.zip.GZIPInputStream.
-;                                                (clojure.java.io/input-stream
-;                                                  f)) :ntriple))
-;                  (get-only-files tmp-dir))))
-;    (run-build-rules source-kb build-rules-step-fa)
-;    (run-build-rules source-kb build-rules-step-fb)
-;    (run-build-rules source-kb build-rules-step-ga)
-;    (run-build-rules source-kb build-rules-step-gb)
-;    (run-build-rules source-kb build-rules-step-gc)
-;    (run-build-rules source-kb build-rules-step-ha)
-;    (run-build-rules source-kb build-rules-step-hb)
-;    (run-build-rules source-kb build-rules-step-hc-central-dogma)
-;    (run-build-rules source-kb build-rules-step-hc-goa)
-;    (run-build-rules source-kb build-rules-step-ia)
-;    (run-build-rules source-kb build-rules-step-ib)
+;    (run-build-rule source-kb target-kb validation-rules-restriction 0)
+;    ;; add 4 for the rule metadata
+;    (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;    (run-build-rule source-kb source-kb build-rules-step-ic 0)
+;    (run-build-rule source-kb target-kb validation-rules-restriction 1)
+;    ;; add 4 for the rule metadata
+;    (is (= 8 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;    (is (ask source-kb '((kice/HGNC_11773 obo/IAO_0000219 ?/g)
-;                          (?/g rdfs/subClassOf ?/ggp_abstraction)
-;                          (?/ggp_abstraction rdf/type ccp/IAO_EXT_0001715) ;; ccp:gene_or_gene_product_abstraction
-;                          (?/g_abstraction rdfs/subClassOf ?/ggv_abstraction)
-;                          (?/ggv_abstraction rdf/type ccp/IAO_EXT_1720) ;; ccp:gene_or_gene_variant_abstraction
-;                          (?/ggv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                          (?/ggpv_abstraction rdf/type ccp/IAO_EXT_0001718) ;; ccp:gene_or_gene_product_or_variant_abstraction
-;                          (?/ggp_abstraction rdf/subClassOf ?/ggpv_abstraction)
-;                          (?/vg_abstraction rdfs/subClassOf ?/ggv_abstraction)
-;                          (?/vg_abstraction rdf/type ccp/IAO_EXT_0001717) ;; ccp:variant_gene_abstraction
-;                          (?/gp_abstraction rdfs/subClassOf ?/ggp_abstraction)
-;                          (?/gp_abstraction rdf/type ccp/IAO_EXT_0001716) ;; ccp:gene_product_abstraction
-;                          (?/gp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                          (?/gpgpv_abstraction rdf/type ccp/IAO_EXT_0001721) ;; ccp:gene_product_or_gene_product_variant_abstraction
-;                          (?/gpgpv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                          (?/vgp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                          (?/vgp_abstraction rdf/type ccp/IAO_EXT_0001719) ;; ccp:variant_gene_product_abstraction
+;    (run-build-rule source-kb target-kb validation-rules-restriction 2)
+;    ;; add 4 for the rule metadata
+;    (is (= 12 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;                          (kice/UNIPROT_P37173 obo/IAO_0000219 ?/p)
-;                          (?/p rdfs/subClassOf ?/gp_abstraction)
+;    (run-build-rule source-kb target-kb validation-rules-restriction 3)
+;    ;; add 4 for the rule metadata
+;    (is (= 16 (count (query target-kb '((?/s ?/p ?/o))))))
 ;
-;                          )
-;             ))
-;
-;    (is (ask source-kb '((kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/p)
-;                          (?/p rdfs/subClassOf ?/has_gene_template_r)
-;                          (?/has_gene_template_r owl/onProperty ?/has_gene_template)
-;                          (kice/pr#has_gene_template obo/IAO_0000219 ?/has_gene_template)
-;                          (?/id_set obo/IAO_0000142 ?/has_gene_template)
-;                          (?/has_gene_template_r owl/someValuesFrom ?/g)
-;                          (?/g rdfs/subClassOf ?/ggp_abstraction)
-;                          (?/ggp_abstraction rdf/type ccp/IAO_EXT_0001715) ;; ccp:gene_or_gene_product_abstraction
-;                          (?/g rdfs/subClassOf ?/ggv_abstraction)
-;                          (?/ggv_abstraction rdf/type ccp/IAO_EXT_1720) ;; ccp:gene_or_gene_variant_abstraction
-;                          (?/ggv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                          (?/ggpv_abstraction rdf/type ccp/IAO_EXT_0001718) ;; ccp:gene_or_gene_product_or_variant_abstraction
-;                          (?/ggp_abstraction rdf/subClassOf ?/ggpv_abstraction)
-;                          (?/vg_abstraction rdfs/subClassOf ?/ggv_abstraction)
-;                          (?/vg_abstraction rdf/type ccp/IAO_EXT_0001717) ;; ccp:variant_gene_abstraction
-;                          (?/gp_abstraction rdfs/subClassOf ?/ggp_abstraction)
-;                          (?/gp_abstraction rdf/type ccp/IAO_EXT_0001716) ;; ccp:gene_product_abstraction
-;                          (?/gp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                          (?/gpgpv_abstraction rdf/type ccp/IAO_EXT_0001721) ;; ccp:gene_product_or_gene_product_variant_abstraction
-;                          (?/gpgpv_abstraction rdfs/subClassOf ?/ggpv_abstraction)
-;                          (?/vgp_abstraction rdfs/subClassOf ?/gpgpv_abstraction)
-;                          (?/vgp_abstraction rdf/type ccp/IAO_EXT_0001719) ;; ccp:variant_gene_product_abstraction
-;
-;                          (kice/UNIPROT_P37173-1 obo/IAO_0000219 ?/p)
-;                          (?/p rdfs/subClassOf ?/gp_abstraction)
+;    (run-build-rule source-kb target-kb validation-rules-restriction 4)
+;    ;; add 4 for the rule metadata
+;    (is (= 20 (count (query target-kb '((?/s ?/p ?/o))))))))
 ;
 ;
-;                          )
-;             ))
-;
-;    (run-build-rule source-kb target-kb build-rules-step-ic 0)
-;
-;    ;; there should be 2 subclassOf links generated from running this rule
-;    (is (= 2 (count (query target-kb '((?/p rdfs/subClassOf ?/abstraction))))))
-;
-;    (let [log-kb (output-kb "/tmp/triples.nt")]
-;      (run-build-rule source-kb log-kb build-rules-step-ib 0)
-;      (close log-kb))
-;
-;    ;(prn (str "--------------------------------"))
-;    ;(doall (map #(prn (str %)) (sparql-query source-kb
-;    ;                                         "PREFIX ccp: <http://ccp.ucdenver.edu/obo/ext/>
-;    ;                                         PREFIX obo: <http://purl.obolibrary.org/obo/>
-;    ;                                         PREFIX obo_pr: <http://purl.obolibrary.org/obo/pr#>
-;    ;                                         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-;    ;  select distinct ?g {
-;    ;                      ?g rdfs:subClassOf* ?gene .
-;    ;                      # to keep from climbing the gene hierarchy we require the genes to have a taxon
-;    ;                      ?g rdfs:subClassOf ?taxon_r .
-;    ;                      ?taxon_r rdf:type owl:Restriction .
-;    ;                      ?taxon_r owl:onProperty ?only_in_taxon .
-;    ;
-;    ;                      {
-;    ;                       select ?gene {
-;    ;                                     ccp:SO_0000704 obo:IAO_0000219 ?gene .
-;    ;                                     filter (?gene != obo:SO_0000704) .
-;    ;                                     }
-;    ;                       }
-;    ;
-;    ;                      }"
-;    ;                                         )))
-;    ;(prn (str "--------------------------------"))
-;
-;    ) )
-
-
-;; validate list structures
-(deftest step-hcb-test-with-validation-rules-lists
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rules source-kb build-rules-step-hcb)
-
-    (run-build-rule source-kb target-kb validation-rules-list 0)
-    ;; add 4 for the rule metadata
-    (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-list 1)
-    ;; add 4 for the rule metadata
-    (is (= 8 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-list 2)
-    ;; add 4 for the rule metadata
-    (is (= 12 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-list 3)
-    ;; add 4 for the rule metadata
-    (is (= 16 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-list 4)
-    ;; add 4 for the rule metadata
-    (is (= 20 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-list 5)
-    ;; add 4 for the rule metadata
-    (is (= 24 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-list 6)
-    ;; add 4 for the rule metadata
-    (is (= 28 (count (query target-kb '((?/s ?/p ?/o))))))))
-
-
-;; validate restriction structures
-(deftest step-hcb-test-with-validation-rules-restrictions
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-    (run-build-rules source-kb build-rules-step-hcb)
-
-    (run-build-rule source-kb target-kb validation-rules-restriction 0)
-    ;; add 4 for the rule metadata
-    (is (= 4 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-restriction 1)
-    ;; add 4 for the rule metadata
-    (is (= 8 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-restriction 2)
-    ;; add 4 for the rule metadata
-    (is (= 12 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-restriction 3)
-    ;; add 4 for the rule metadata
-    (is (= 16 (count (query target-kb '((?/s ?/p ?/o))))))
-
-    (run-build-rule source-kb target-kb validation-rules-restriction 4)
-    ;; add 4 for the rule metadata
-    (is (= 20 (count (query target-kb '((?/s ?/p ?/o))))))))
-
-
-
-
 

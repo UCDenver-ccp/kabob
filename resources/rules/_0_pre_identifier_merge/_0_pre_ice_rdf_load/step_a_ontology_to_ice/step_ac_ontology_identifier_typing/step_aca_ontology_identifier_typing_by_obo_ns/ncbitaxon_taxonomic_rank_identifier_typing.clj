@@ -11,7 +11,7 @@
                   prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                   prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
                   select distinct ?id {
-                  ?c oboInOwl:hasOBONamespace 'ncbi_taxonomy' .
+                  ?c oboInOwl:hasOBONamespace 'ncbi_taxonomy'^^xsd:string .
                   ?c rdfs:subClassOf* <http://purl.obolibrary.org/obo/NCBITaxon#_taxonomic_rank> .
                   ?id obo:IAO_0000219 ?c . # IAO:denotes
                   ?id rdfs:subClassOf ccp:IAO_EXT_0000088 . # CCP:ontology_concept_identifier

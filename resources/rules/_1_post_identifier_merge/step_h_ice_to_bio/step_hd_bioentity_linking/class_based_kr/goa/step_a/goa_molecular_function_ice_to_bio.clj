@@ -6,12 +6,13 @@
   :head          (
                    ;; create a subclass of the molecular function
                    (?/molecular_function_sc rdfs/subClassOf ccp/temp_molecular_function)
+                   (?/molecular_function_sc ccp/temp_has_participant ?/bioentity_sc)
+
+
                    (?/molecular_function_sc rdfs/subClassOf ?/molecular_function)
 
                    ;; create a subclass of the participating bioentity
                    (?/bioentity_sc rdfs/subClassOf ?/participating_bioentity)
-
-                   (?/process_sc rdfs/subClassOf ?/process_root)
 
                    ;; create a has_participant restriction
                    (?/participation_restriction rdf/type owl/Restriction)
@@ -19,31 +20,19 @@
                    (?/participation_restriction owl/someValuesFrom ?/bioentity_sc)
 
                    ;; connect the process subclass to the participation restriction
-                   (?/process_sc rdfs/subClassOf ?/participation_restriction)
-
-                   (?/realizes_restriction rdf/type owl/Restriction)
-                   (?/realizes_restriction owl/onProperty ?/realizes)
-                   (?/realizes_restriction owl/someValuesFrom ?/molecular_function_sc)
-
-                   (?/process_sc rdfs/subClassOf ?/realizes_restriction)
+                   (?/molecular_function_sc rdfs/subClassOf ?/participation_restriction)
 
                    ;; provenance
                    (?/record obo/IAO_0000219 ?/molecular_function_sc) ; IAO:denotes
                    (?/record obo/IAO_0000219 ?/bioentity_sc) ; IAO:denotes
-                   (?/record obo/IAO_0000219 ?/process_sc)
-                   (?/record obo/IAO_0000219 ?/participation_restriction)
-                   (?/record obo/IAO_0000219 ?/realizes_restriction)) ; IAO:denotes
+                   (?/record obo/IAO_0000219 ?/participation_restriction))
 
 
   :reify         ([?/molecular_function_sc {:ln (:sha-1 ?/molecular_function ?/participating_bioentity "mf")
                                             :ns "kbio" :prefix "B_"}]
                    [?/bioentity_sc {:ln (:sha-1 ?/molecular_function ?/participating_bioentity)
                                     :ns "kbio" :prefix "B_"}]
-                   [?/process_sc {:ln (:sha-1 ?/molecular_function ?/participating_bioentity "process")
-                                    :ns "kbio" :prefix "B_"}]
                    [?/participation_restriction {:ln (:restriction)
-                                                 :ns "kbio" :prefix "RS_"}]
-                   [?/realizes_restriction {:ln (:restriction)
                                                  :ns "kbio" :prefix "RS_"}])
 
   :body "prefix franzOption_chunkProcessingAllowed: <franz:yes>
@@ -53,29 +42,9 @@
                 prefix kice: <http://ccp.ucdenver.edu/kabob/ice/>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT ?participating_bioentity ?molecular_function ?has_participant ?realizes ?process_root ?record
+                SELECT ?participating_bioentity ?molecular_function ?has_participant ?record
                 WHERE {
-
-                 {
-                           select ?has_participant {
-                                                    kice:RO_0000057 obo:IAO_0000219 ?has_participant .
-                                                    filter (?has_participant != obo:RO_0000057) .
-                                                    }
-                           }
-
-                 {
-                  select ?realizes {
-                                    kice:BFO_0000055 obo:IAO_0000219 ?realizes .
-                                    filter (?realizes != obo:BFO_0000055) .
-                                    }
-                  }
-
-  {
-   select ?process_root {
-                         kice:GO_0008150 obo:IAO_0000219 ?process_root .
-                         filter (?process_root != obo:GO_0008150) .
-                         }
-   }
+                ?has_participant rdf:type kice:temp_has_participant .
 
                 ?go_mf_identifier rdfs:subClassOf ccp:IAO_EXT_0000199 . # CCP:GO_molecular_function_identifier
                          ?go_identifier_field_value rdf:type ?go_mf_identifier .
@@ -96,8 +65,6 @@
                                    }
                          # filter out the negations
                          FILTER (( ! bound(?qualifier) || ! regex(?qualifier, \"^NOT\", \"i\")))
-
-
 
                 }"
 

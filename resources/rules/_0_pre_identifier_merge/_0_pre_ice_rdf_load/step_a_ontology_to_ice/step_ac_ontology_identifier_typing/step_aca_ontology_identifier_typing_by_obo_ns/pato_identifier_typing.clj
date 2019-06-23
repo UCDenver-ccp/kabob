@@ -14,6 +14,7 @@
                   select distinct ?id {
                   ?id rdfs:subClassOf ccp:IAO_EXT_0000088 . # CCP:ontology_concept_identifier
                   ?id obo:IAO_0000219 ?c . # IAO:denotes
-                  {{?c oboInOwl:hasOBONamespace 'quality'} union {?c obo:IAO_0000412 obo:pato.ontology}}
+                  {{{?c oboInOwl:hasOBONamespace 'quality'^^xsd:string} union {?c obo:IAO_0000412 obo:pato.ontology}}
+                  union {?c obo:IAO_0000412 obo:pato.owl}}
                   }"
   }

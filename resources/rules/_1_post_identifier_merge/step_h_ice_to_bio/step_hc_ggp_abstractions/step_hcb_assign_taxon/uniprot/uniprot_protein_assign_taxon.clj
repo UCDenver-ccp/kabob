@@ -28,6 +28,13 @@
     ?primary_accession_field_value rdf:type ccp:IAO_EXT_0000240 . # ccp:UniProt_protein_record__primary_accession_field_value
     ?primary_accession_field_value rdf:type ?uniprot_id .
          ?uniprot_id obo:IAO_0000219 ?bioentity . # IAO:denotes
+
+         # ignore any bioentities that already have a taxon restriction
+           minus {
+                  ?bioentity rdfs:subClassOf ?taxon_r .
+                           ?taxon_r owl:onProperty ?only_in_taxon .
+                                    }
+
     ?record obo:BFO_0000051 ?organism_record . # BFO:has_part
     ?organism_record rdf:type ccp:IAO_EXT_0000935 . # ccp:UniProt_protein_record__organism_field_value
     ?organism_record rdf:type ccp:IAO_EXT_0000972 . # ccp:uniprot_organism_record
@@ -40,13 +47,6 @@
     ?taxon_id obo:IAO_0000219 ?taxon . # IAO:denotes
     # ensure it's a kabob bioentity (not an obo bioentity)
          filter (contains (str(?taxon), 'http://ccp.ucdenver.edu/kabob/bio/'))
-
-         # ignore any bioentities that already have a taxon restriction
-  minus {
-         ?bioentity rdfs:subClassOf ?taxon_r .
-         ?taxon_r owl:onProperty ?only_in_taxon .
-         }
-
 
   }"
 

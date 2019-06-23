@@ -7,7 +7,7 @@
          ;; create subclasses of interaction type and id
           (?/interaction rdfs/subClassOf ccp/temp_irefweb_nary_interaction) ;interaction
          (?/interaction rdfs/subClassOf ?/interaction_type) ;interaction
-          (?/interaction rdfs/label ["n-ary interaction" "en"])
+          (?/interaction rdfs/label ?/interaction_label)
          ;; create subclasses of the proteins
          (?/bioentity_sc rdfs/subClassOf ?/bioentity)
 
@@ -41,21 +41,10 @@
   PREFIX obo: <http://purl.obolibrary.org/obo/>
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  SELECT ?bioentity ?interaction_irig_identifier ?interactor_a_identifier ?interaction_type ?interaction_type_label ?super_record ?has_participant
+  SELECT ?bioentity ?interaction_irig_identifier ?interaction_label ?interactor_a_identifier ?interaction_type ?interaction_type_label ?super_record ?has_participant
   WHERE {
 
-  {
-      select ?bio_interaction {
-                               kice:INO_0000002 obo:IAO_0000219 ?bio_interaction .
-                               filter (?bio_interaction != obo:INO_0000002) .
-                               }
-      }
-  {
-      select ?has_participant {
-                               kice:RO_0000057 obo:IAO_0000219 ?has_participant .
-                               filter (?has_participant != obo:RO_0000057) .
-                               }
-      }
+         ?has_participant rdf:type kice:temp_has_participant .
 
          # get binary interaction records
                       ?interaction_record rdf:type ccp:IAO_EXT_0000064 . # CCP:IRefWeb_interaction_record
@@ -80,6 +69,7 @@
          ?irig_identifier_field_value rdf:type ccp:IAO_EXT_0000737 . # ccp:IRefWeb_interaction_record__integer_RID_identifier_field_value
     ?irig_identifier_field_value rdf:type ?interaction_irig_identifier .
          ?interaction_irig_identifier rdfs:subClassOf ccp:IAO_EXT_0001376 . # IRefWeb_interaction_RIG_identifier
+         bind(concat(\"n-ary interaction \", str(?interaction_irig_identifier)) as ?interaction_label)
 
     # get the interaction type name and ID
          optional {
@@ -97,7 +87,7 @@
                    }
 
 
-
+   ?bio_interaction rdf:type kice:temp_bio_interaction .
 
   # if no interaction type was specified then bind to INO_0000002 (interaction)
   bind(coalesce(?inter_type, ?bio_interaction) as ?updated_inter_type)

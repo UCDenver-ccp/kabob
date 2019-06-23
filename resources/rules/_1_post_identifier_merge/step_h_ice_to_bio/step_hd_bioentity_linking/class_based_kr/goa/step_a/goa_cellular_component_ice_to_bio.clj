@@ -49,26 +49,10 @@
                   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   SELECT ?localized_bioentity ?cellular_component ?record ?localization_process ?transports_or_maintains_localization_of ?has_target_end_location
                   WHERE {
-                  {
-                            select ?localization_process {
-                                                          kice:GO_0051179 obo:IAO_0000219 ?localization_process .
-                                                          filter (?localization_process != obo:GO_0051179) .
-                                                          }
-                            }
 
-  {
-   select ?transports_or_maintains_localization_of  {
-                                                     kice:RO_0002313 obo:IAO_0000219 ?transports_or_maintains_localization_of .
-                                                     filter (?transports_or_maintains_localization_of != obo:RO_0002313) .
-                                                     }
-   }
-
-  {
-   select ?has_target_end_location {
-                                    kice:RO_0002339 obo:IAO_0000219 ?has_target_end_location .
-                                    filter (?has_target_end_location != obo:RO_0002339) .
-                                    }
-   }
+                    ?localization_process rdf:type kice:temp_localization_process .
+                    ?transports_or_maintains_localization_of rdf:type kice:temp_transports_or_maintains_localization_of .
+                    ?has_target_end_location rdf:type kice:temp_has_target_end_location .
 
                     ?go_cc_identifier rdfs:subClassOf ccp:IAO_EXT_0000200 . # CCP:GO_cellular_component_concept_identifier
                     ?go_cc_identifier obo:IAO_0000219 ?cellular_component .

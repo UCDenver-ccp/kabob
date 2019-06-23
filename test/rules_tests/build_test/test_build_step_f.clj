@@ -16,7 +16,7 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             build-rules-step-fa build-rules-step-fb
                                                             concepts object-properties ice-identifiers obsolete-ice-identifiers]]
@@ -43,6 +43,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -100,65 +101,65 @@
     (is (= (+ 7 (count (distinct (concat concepts object-properties ice-identifiers))))
            (count (query target-kb '((?/x obo/IAO_0000219 ?/y)))))) ; obo:denotes
 
-    (let [log-kb (output-kb "/tmp/triples.nt")]
-
-      (run-build-rule source-kb log-kb build-rules-step-fa 0)
-
-      (close log-kb))
-
-    ))
-
-
-;;; This tests that each id-set mentions the bioentity denoted by its member ids
-(deftest step-fa-bioentity-generation-test-idset-mentions-bioentity
-  (let [source-kb base-kb
-        target-kb (test-kb '())]
-
-    ;; run the identifier-denotes-bioentity rule
-    (run-build-rule source-kb source-kb build-rules-step-fa 0)
-    (run-build-rule source-kb source-kb build-rules-step-fa 1)
-
-
-    ;; each concept identifier should denote a bioentity
-    (doall (map (fn [concept] (let [ccp-id (symbol "kice" concept)]
-                                (is (ask source-kb `((?/id_set obo/RO_0002351 ~ccp-id)
-                                                      (~ccp-id obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                                                      (?/id_set obo/IAO_0000142 ?/bioentity)))))) ; obo:mentions
-                concepts))
-
-    ;; each concept identifier should denote a bioentity
-    (doall (map (fn [concept] (let [ccp-id (symbol "kice" concept)]
-                                (is (ask source-kb `((?/id_set obo/RO_0002351 ~ccp-id)
-                                                      (~ccp-id obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                                                      (?/id_set obo/IAO_0000142 ?/bioentity)))))) ; obo:mentions
-                ice-identifiers))
-
-    ;; each property identifier should denote a bioentity
-    (doall (map (fn [prop] (let [ccp-id (symbol "kice" prop)]
-                             (is (ask source-kb `((?/id_set obo/RO_0002351 ~ccp-id)
-                                                   (~ccp-id obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                                                   (?/id_set obo/IAO_0000142 ?/bioentity)))))) ; obo:mentions
-                object-properties))
-
-
-    (run-build-rule source-kb target-kb build-rules-step-fa 0)
-    (run-build-rule source-kb target-kb build-rules-step-fa 1)
-
-
-    ;; there are 17 identifiers that take part in 5 combined id_sets, so 17-5=12 fewer identifier sets than if each identifier
-    ;; had its own is set. See the combined sets in test_build_step_e/step-e-identifier-merge-test-generation-of-merged-concept-identifier-sets
-    ;(is (= (- (count (distinct (concat concepts ice-concepts object-properties))) 12)
-    ;       (count (query target-kb '((?/x obo/IAO_0000142 ?/y)))))) ; obo:denotes
-    ; TODO: the above count comparison is off by one 133/132. Can't figure out why.
-
     ;(let [log-kb (output-kb "/tmp/triples.nt")]
     ;
-    ;  (run-build-rule source-kb log-kb build-rules-step-f 0)
-    ;  (run-build-rule source-kb log-kb build-rules-step-f 1)
+    ;  (run-build-rule source-kb log-kb build-rules-step-fa 0)
     ;
     ;  (close log-kb))
 
     ))
+
+;;; this rule is no longer used
+;;; This tests that each id-set mentions the bioentity denoted by its member ids
+;(deftest step-fa-bioentity-generation-test-idset-mentions-bioentity
+;  (let [source-kb base-kb
+;        target-kb (test-kb '())]
+;
+;    ;; run the identifier-denotes-bioentity rule
+;    (run-build-rule source-kb source-kb build-rules-step-fa 0)
+;    (run-build-rule source-kb source-kb build-rules-step-fa 1)
+;
+;
+;    ;; each concept identifier should denote a bioentity
+;    (doall (map (fn [concept] (let [ccp-id (symbol "kice" concept)]
+;                                (is (ask source-kb `((?/id_set obo/RO_0002351 ~ccp-id)
+;                                                      (~ccp-id obo/IAO_0000219 ?/bioentity) ; obo:denotes
+;                                                      (?/id_set obo/IAO_0000142 ?/bioentity)))))) ; obo:mentions
+;                concepts))
+;
+;    ;; each concept identifier should denote a bioentity
+;    (doall (map (fn [concept] (let [ccp-id (symbol "kice" concept)]
+;                                (is (ask source-kb `((?/id_set obo/RO_0002351 ~ccp-id)
+;                                                      (~ccp-id obo/IAO_0000219 ?/bioentity) ; obo:denotes
+;                                                      (?/id_set obo/IAO_0000142 ?/bioentity)))))) ; obo:mentions
+;                ice-identifiers))
+;
+;    ;; each property identifier should denote a bioentity
+;    (doall (map (fn [prop] (let [ccp-id (symbol "kice" prop)]
+;                             (is (ask source-kb `((?/id_set obo/RO_0002351 ~ccp-id)
+;                                                   (~ccp-id obo/IAO_0000219 ?/bioentity) ; obo:denotes
+;                                                   (?/id_set obo/IAO_0000142 ?/bioentity)))))) ; obo:mentions
+;                object-properties))
+;
+;
+;    (run-build-rule source-kb target-kb build-rules-step-fa 0)
+;    (run-build-rule source-kb target-kb build-rules-step-fa 1)
+;
+;
+;    ;; there are 17 identifiers that take part in 5 combined id_sets, so 17-5=12 fewer identifier sets than if each identifier
+;    ;; had its own is set. See the combined sets in test_build_step_e/step-e-identifier-merge-test-generation-of-merged-concept-identifier-sets
+;    ;(is (= (- (count (distinct (concat concepts ice-concepts object-properties))) 12)
+;    ;       (count (query target-kb '((?/x obo/IAO_0000142 ?/y)))))) ; obo:denotes
+;    ; TODO: the above count comparison is off by one 133/132. Can't figure out why.
+;
+;    ;(let [log-kb (output-kb "/tmp/triples.nt")]
+;    ;
+;    ;  (run-build-rule source-kb log-kb build-rules-step-f 0)
+;    ;  (run-build-rule source-kb log-kb build-rules-step-f 1)
+;    ;
+;    ;  (close log-kb))
+;
+;    ))
 
 
 ;;; This tests that each id-set mentions the bioentity denoted by its member ids
@@ -171,25 +172,53 @@
     ;; the 4 secondary uniprot accessions should point to the bioentity denoted by P37173
 
     (is (ask source-kb `((kice/UNIPROT_P37173 obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                          (?/id_set obo/IAO_0000142 ?/bioentity) ; obo:mentions
                           kice/UNIPROT_B4DTV5 obo/IAO_0000219 ?/bioentity)))  ; obo:denotes
 
     (is (ask source-kb `((kice/UNIPROT_P37173 obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                          (?/id_set obo/IAO_0000142 ?/bioentity) ; obo:mentions
                           kice/UNIPROT_Q15580 obo/IAO_0000219 ?/bioentity)))  ; obo:denotes
 
     (is (ask source-kb `((kice/UNIPROT_P37173 obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                          (?/id_set obo/IAO_0000142 ?/bioentity) ; obo:mentions
                           kice/UNIPROT_Q6DKT6 obo/IAO_0000219 ?/bioentity)))  ; obo:denotes
 
     (is (ask source-kb `((kice/UNIPROT_P37173 obo/IAO_0000219 ?/bioentity) ; obo:denotes
-                          (?/id_set obo/IAO_0000142 ?/bioentity) ; obo:mentions
                           kice/UNIPROT_Q99474 obo/IAO_0000219 ?/bioentity)))  ; obo:denotes
 
 
     (run-build-rule source-kb target-kb build-rules-step-fb 0)
     (is (= (count obsolete-ice-identifiers)
            (count (query target-kb '((?/x obo/IAO_0000219 ?/y)))))) ; obo:denotes
+
+
+
+  ;  (prn (str "--------------------------------"))
+  ;  (doall (map #(prn (str %)) (sparql-query source-kb
+  ;                                           "prefix franzOption_chunkProcessingAllowed: <franz:yes>
+  ;prefix franzOption_clauseReorderer: <franz:identity>
+  ;                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  ;                prefix obo: <http://purl.obolibrary.org/obo/>
+  ;                prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  ;                prefix ccp: <http://ccp.ucdenver.edu/obo/ext/>
+  ;                SELECT ?secondary_uniprot_identifier ?bioentity
+  ;                WHERE {  ?record rdf:type ccp:IAO_EXT_0000234 . # CCP:uniprot_knowledge_base_record
+  ;                         ?record obo:BFO_0000051 ?primary_accession_field_value .
+  ;                         ?primary_accession_field_value rdf:type ccp:IAO_EXT_0000240 . # CCP:uniprot_protein_record_primary_accession_field_value
+  ;                         ?primary_accession_field_value rdf:type ?primary_uniprot_identifier .
+  ;                         ?primary_uniprot_identifier rdfs:subClassOf ccp:IAO_EXT_0000184 . # CCP:uniprot_identifier
+  ;
+  ;                         # once we have the primary_uniprot_id, get a reference to the ?bioentity
+  ;                         ?primary_uniprot_identifier obo:IAO_0000219 ?bioentity .
+  ;
+  ;                         # now get any secondary accession identifiers
+  ;                         ?record obo:BFO_0000051 ?accession_field_value .
+  ;                         ?accession_field_value rdf:type ccp:IAO_EXT_0000931 . # CCP:uniprot_protein_record_accession_field_value
+  ;                         ?accession_field_value rdf:type ?secondary_uniprot_identifier .
+  ;                         ?secondary_uniprot_identifier rdfs:subClassOf ccp:IAO_EXT_0000184 . # CCP:uniprot_identifier
+  ;                         filter (?secondary_uniprot_identifier != ?primary_uniprot_identifier)
+  ;                }"
+  ;                                           )))
+  ;
+  ;  (prn (str "--------------------------------"))
+
 
     ;(let [log-kb (output-kb "/tmp/triples.nt")]
     ;

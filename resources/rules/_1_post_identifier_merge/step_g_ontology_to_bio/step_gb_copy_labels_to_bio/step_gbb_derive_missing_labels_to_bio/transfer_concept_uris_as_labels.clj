@@ -13,7 +13,7 @@
              ?id obo:IAO_0000219 ?c .
              ?id obo:IAO_0000219 ?bioentity .
              filter (?c != ?bioentity && contains(str(?bioentity),'http://ccp.ucdenver.edu/kabob/bio/'))
-             bind(concat(\"Unnamed: \", str(?c)) as ?lbl)
+             bind(concat(\"No_label: \", str(?c)) as ?lbl)
              filter (!contains (str(?c), 'bnode'))
              filter (!contains (str(?c), 'kabob'))
            }"

@@ -16,7 +16,7 @@
             [rules-tests.build-test.ccp-ext-ontology :refer [ccp-ext-ontology-triples]]
             [rules-tests.build-test.test-build-util :refer [initial-plus-ice-triples run-build-rule run-build-rules
                                                             test-kb build-rules-step-a build-rules-step-b
-                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc
+                                                            build-rules-step-ca build-rules-step-cb build-rules-step-cc build-rules-step-cd
                                                             build-rules-step-da build-rules-step-db build-rules-step-dc
                                                             concepts object-properties]]
             [test-with-files.core :refer [with-tmp-dir tmp-dir]]
@@ -41,6 +41,7 @@
                (run-build-rules source-kb build-rules-step-ca)
                (run-build-rules source-kb build-rules-step-cb)
                (run-build-rules source-kb build-rules-step-cc)
+               (run-build-rules source-kb build-rules-step-cd)
                (run-build-rules source-kb build-rules-step-da)
                (run-build-rules source-kb build-rules-step-db)
                (run-build-rules source-kb build-rules-step-dc)
@@ -255,20 +256,20 @@
         )
 
 
-      (prn (str "--------------------------------"))
-      (doall (map #(prn (str %)) (sparql-query target-kb
-                                               "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                                                prefix ccp: <http://ccp.ucdenver.edu/obo/ext/>
-                                                prefix obo: <http://purl.obolibrary.org/obo/>
-                                                prefix owl: <http://www.w3.org/2002/07/owl#>
-                                                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                                                select * {
-                                                  ?id_set rdf:type ccp:IAO_EXT_0000316 .
-                                                  ?id_set obo:RO_0002351 ?id .
-            }"
-                                               )))
-
-      (prn (str "--------------------------------"))
+      ;(prn (str "--------------------------------"))
+      ;(doall (map #(prn (str %)) (sparql-query target-kb
+      ;                                         "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      ;                                          prefix ccp: <http://ccp.ucdenver.edu/obo/ext/>
+      ;                                          prefix obo: <http://purl.obolibrary.org/obo/>
+      ;                                          prefix owl: <http://www.w3.org/2002/07/owl#>
+      ;                                          prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      ;                                          select * {
+      ;                                            ?id_set rdf:type ccp:IAO_EXT_0000316 .
+      ;                                            ?id_set obo:RO_0002351 ?id .
+      ;      }"
+      ;                                         )))
+      ;
+      ;(prn (str "--------------------------------"))
 
       ;; throw an exeception to prevent the tmp directory from being deleted so the generated files can be viewed
       ;(throw (Exception. "my exception message"))

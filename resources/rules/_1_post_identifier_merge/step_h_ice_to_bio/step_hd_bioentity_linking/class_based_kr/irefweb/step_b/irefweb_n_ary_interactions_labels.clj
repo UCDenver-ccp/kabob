@@ -20,7 +20,7 @@
 
        optional {?b1 rdfs:label ?label}
        bind(coalesce(?label, \"Unnamed interacting protein\") as ?bioentity_name)
-       bind(concat(str(?bioentity_name), \"; interaction participant\") as ?bioentity_label)
+       bind(concat(str(?bioentity_name), \"; n-ary interaction participant\") as ?bioentity_label)
 
        }"
 
