@@ -1,47 +1,25 @@
-# KaBOB
-KaBOB (Knowledge Base Of Biomedicine)
+The KaBOB Knowledge Base of Biology is a semantic integration of a variety of molecular biology resources, grounded in the Open Biomedical Ontologies. This wiki contains instructions for building and using KaBOB.
 
-This library is associated with the publication: <br />
-> KaBOB: Ontology-Based Semantic Integration of Biomedical Databases <br />
-> Kevin M Livingston, Michael Bada, William A Baumgartner, Lawrence E Hunter <br />
-> BMC Bioinformatics (2015, to appear)
+For background and citation purposes, please see the [original KaBOB publication](https://www.ncbi.nlm.nih.gov/pubmed/25903923):
+> KaBOB: Ontology-Based Semantic Integration of Biomedical Databases <br/>
+Kevin M Livingston, Michael Bada, William A Baumgartner Jr., and Lawrence E Hunter <br/> 
+BMC Bioinformatics 2015 Apr 23;16:126. doi: 10.1186/s12859-015-0559-3
 
-Please cite when using.
+# Active Branch
+Please note that the active development branch is currently [bg-integration](https://github.com/UCDenver-ccp/kabob/tree/bg-integration). This branch uses Blazegraph as the backend triple store, and should be used when installing and building KaBOB.
 
-KaBOB is built on top of the [KR][] library, and numerous biomedical ontologies and data sources, which are parsed using the [datasources][] library.  KaBOB is primarily written in Clojure and is driven by Maven as well as a collection of Bash shell scripts.
+# System Requirements
+* The recommended installation method makes use of Docker, thus [Docker](https://www.docker.com/) is the major system requirement. 
+* Running on a machine with a relatively large amount of RAM is also a requirement. The current setup has been tested using 60GB allocated to Blazegraph. This is likely higher than what is truly necessary. Further tests will be conducted to better define the memory requirements for building KaBOB.
 
-The KaBOB code builds and manages a collection of RDF triples that allow querying of data using a common biomedical model based on the Open Biomedical Ontologies (OBOs). It iteratively loads triples into a triplestore and runs queries agains those triples to generate new triples, which are then loaded. (repeat)
+# Installation
+Please see the dedicated [installation wiki page](https://github.com/UCDenver-ccp/kabob/wiki/Installation-via-Docker) for details on installing and building an instance of KaBOB.
 
-Subdirectories:
+# Knowledge Representation
+In order to effectively use KaBOB, an understanding of how it represents various aspects of biology is required. KaBOB uses [OWL](https://www.w3.org/TR/owl2-primer/) to formulate its representations of biology. Please see the dedicated [knowledge representation wiki page](https://github.com/UCDenver-ccp/kabob/wiki/KaBOB-Knowledge-Representation) for further information.
 
-* `scripts` the primary scripts for running KaBOB  
-   to get a feel for a full load see [`build-kabob-ag.sh`](https://github.com/drlivingston/kabob/blob/master/scripts/build-kabob-ag.sh)  
-   you can change your specific settings in [`ENV.sh`](https://github.com/drlivingston/kabob/blob/master/scripts/ENV.sh)
-* `kabob-core` primary KaBOB library and common code
-* `kabob-build` code specific for building KaBOB  
-   the [rule files](https://github.com/drlivingston/kabob/tree/master/kabob-build/src/main/resources/edu/ucdenver/ccp/kabob/build/rules) are also located here 
-* `kabob-dev` primary developer entry point, useful for establishing a REPL
+# Sample Queries
+Please see the dedicated [sample queries wiki page](https://github.com/UCDenver-ccp/kabob/wiki/Sample-Queries) for examples of querying an instance of KaBOB.
 
-Other components (which maybe should be in indepnedent projects, although they are built sepeartely by Maven into independent jars):
-* `kabob-query` example queries and tools for common interactions
-* `kabob-view` incomplete, experimental web viewer for KaBOB data
-* `local-repository` a Maven setupo for plugging in Virtuoso
-
-
-
-## Acknowledgements
-open sourced by: <br />
-[CCP Lab][] <br />
-[University of Colorado Denver][] <br />
-primary contact: [Kevin Livingston][] <br />
-contributers: [Bill Baumgartner][], Mike Bada
-
-----
-
-
-[CCP Lab]: http://compbio.ucdenver.edu/Hunter_lab/CCP_website/index.html
-[University of Colorado Denver]: http://www.ucdenver.edu/
-[Kevin Livingston]: https://github.com/drlivingston
-[Bill Baumgartner]: https://github.com/bill-baumgartner
-[KR]: https://github.com/drlivingston/kr
-[datasources]: https://github.com/UCDenver-ccp/datasource
+# Contact Information
+For questions about building or querying KaBOB, please [submit an issue](https://github.com/UCDenver-ccp/kabob/issues) to this GitHub repository.
