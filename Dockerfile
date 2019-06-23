@@ -67,7 +67,7 @@ RUN git clone --branch bg-integration https://github.com/bill-baumgartner/kr.git
 COPY docker-build-flags/do.kabob /flags
 
 # install the kabob project
-RUN git clone --branch bg-integration https://github.com/bill-baumgartner/kabob.git ./kabob.git && \
+RUN git clone --branch v2.0.0-BG_0.7.3 https://github.com/UCDenver-ccp/kabob.git ./kabob.git && \
     cd ./kabob.git && \
     #./scripts/download/download-virtuoso-dependencies.sh mvn && \
     lein install && \
