@@ -18,8 +18,8 @@ Please see the dedicated [installation wiki page](https://github.com/UCDenver-cc
 # Knowledge Representation
 In order to effectively use KaBOB, an understanding of how it represents various aspects of biology is required. KaBOB uses [OWL](https://www.w3.org/TR/owl2-primer/) to formulate its representations of biology. Please see the dedicated [knowledge representation wiki page](https://github.com/UCDenver-ccp/kabob/wiki/KaBOB-Knowledge-Representation) for further information.
 
-# Sample Queries
-Please see the dedicated [sample queries wiki page](https://github.com/UCDenver-ccp/kabob/wiki/Sample-Queries) for examples of querying an instance of KaBOB.
+# Querying KaBOB
+Please find instructions for submitting queries on the [querying KaBOB wiki page](https://github.com/UCDenver-ccp/kabob/wiki/Querying-KaBOB), and see the dedicated [sample queries wiki page](https://github.com/UCDenver-ccp/kabob/wiki/Sample-Queries) for examples queries.
 
 # Contact Information
 For questions about building or querying KaBOB, please [submit an issue](https://github.com/UCDenver-ccp/kabob/issues) to this GitHub repository.
